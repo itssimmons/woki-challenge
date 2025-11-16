@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"noEmit": false,
+		"emitDeclarationOnly": false,
+		"types": ["jest", "node"]
+	},
+	"include": ["**/*.test.ts", "**/*.spec.ts"]
+}

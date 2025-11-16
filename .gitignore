@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+
+# Environment
+*.env
+!.env.example
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Misc
+.DS_Store

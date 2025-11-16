@@ -1,0 +1,10 @@
+name: hello world
+
+on: push
+
+jobs:
+  hello_world_job:
+    name: Hello World Job
+    runs-on: ubuntu-slim
+    steps:
+      - run: echo -e "Hello World!\n"

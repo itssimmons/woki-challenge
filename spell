@@ -1,0 +1,21 @@
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+Args="${@:2}"
+
+case $1 in
+	'database')
+		pnpm run exec $SCRIPT_DIR/app/database/commands.ts $Args
+	;;
+	'sqlite')
+		sqlite3 $SCRIPT_DIR/app/database/database.sqlite3 $Args
+	;;
+	'start')
+		pnpm run dev $Args
+	;;
+	*)
+		echo Unhandled argument $1. Exitting.
+		exit 1
+	;;
+esac
+
+exit $?

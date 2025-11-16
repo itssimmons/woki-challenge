@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json.schemastore.org/prettierrc",
+	"semi": true,
+	"trailingComma": "none",
+	"singleQuote": true,
+	"plugins": ["prettier-plugin-sort-imports"],
+	"importOrder": ["^node:", "^[a-zA-Z]", "^[./]"],
+	"importOrderSeparation": true
+}
