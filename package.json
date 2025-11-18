@@ -12,7 +12,7 @@
 		"exec": "npx tsx --no-warnings",
 		"serve:ts": "node --import=tsx src/index.ts",
 		"format": "prettier --write app/**/*.ts",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "jest"
 	},
 	"keywords": [],
 	"author": "",
@@ -24,6 +24,7 @@
 		"@types/node": "^24.10.0",
 		"esbuild": "^0.25.12",
 		"jest": "^30.2.0",
+		"ts-jest": "^29.4.5",
 		"tsx": "^4.20.6"
 	},
 	"dependencies": {

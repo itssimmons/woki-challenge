@@ -12,6 +12,9 @@ case $1 in
 	'start')
 		pnpm run dev $Args
 	;;
+	'exec')
+		pnpm run exec $Args
+	;;
 	*)
 		echo Unhandled argument $1. Exitting.
 		exit 1
