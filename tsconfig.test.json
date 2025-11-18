@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"noEmit": false,
 		"emitDeclarationOnly": false,
+		"esModuleInterop": true,
 		"types": ["jest", "node"]
 	},
-	"include": ["**/*.test.ts", "**/*.spec.ts"]
+	"include": ["app/**/*.ts", "app/**/*.d.ts", "**/*.test.ts", "**/*.spec.ts"]
 }
