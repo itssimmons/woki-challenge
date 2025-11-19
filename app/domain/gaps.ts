@@ -4,11 +4,11 @@ import backtrack from "../lib/utils/backtracking";
 const TABLE_COMBO_LIMIT = 2;
 
 interface DiscoverSettings {
-  restaurantId: string;
-  sectorId: string;
+  restaurantId: ID;
+  sectorId: ID;
   partySize: number;
-  startDate: string;
-  endDate: string;
+  startDate: Timestamp;
+  endDate: Timestamp;
 }
 
 type AuxGap = Extend<Edit<Gap, "kind", string>, { sectorId: ID }>;
@@ -125,5 +125,5 @@ export function discover({
       maxSize: combo.reduce((sum, g) => sum + g.maxSize, 0),
       minSize: combo.reduce((sum, g) => sum + g.minSize, 0),
     })),
-  ];
+  ] as Gap[];
 }
