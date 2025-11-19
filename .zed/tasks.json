@@ -1,0 +1,7 @@
+[
+	{
+		"label": "tsc: debug build",
+		"command": "npx tsc -p tsconfig.debug.json",
+		"shell": "system"
+	}
+]

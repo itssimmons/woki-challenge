@@ -1,0 +1,12 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "./tsconfig.app.json",
+	"compilerOptions": {
+		"skipLibCheck": true,
+		"noImplicitAny": true,
+		"sourceMap": true,
+		"inlineSources": true,
+		"outDir": "debug/"
+	},
+	"exclude": ["**/*.test.ts"]
+}

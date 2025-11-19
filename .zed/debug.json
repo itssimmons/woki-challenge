@@ -1,0 +1,11 @@
+[
+	{
+		"label": "TypeScript Debugging",
+		"adapter": "JavaScript",
+		"type": "node",
+		"request": "launch",
+		"program": "${ZED_WORKTREE_ROOT}/debug/${ZED_RELATIVE_DIR}/${ZED_STEM}.js",
+		"cwd": "$ZED_WORKTREE_ROOT",
+		"build": "tsc: debug build"
+	}
+]

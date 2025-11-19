@@ -1,14 +1,15 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"compilerOptions": {
-		"target": "es6",
-		"module": "commonjs",
-		"lib": ["es6"],
-		"strict": true,
+		"module": "es2020",
+		"lib": ["ES2020"],
 		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"strict": true,
 		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["app/**/*.ts", "app/**/*.d.ts"],
+	"include": ["**/*.ts", "**/*.d.ts"],
 	"exclude": ["node_modules"]
 }
