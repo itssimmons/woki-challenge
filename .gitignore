@@ -12,5 +12,8 @@ node_modules/
 # Misc
 .DS_Store
 
+# Testing
+coverage/
+
 # Debugging
 debug/
