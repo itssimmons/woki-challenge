@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import chalk from "chalk";
 import { fileURLToPath } from "node:url";
 import sqlite from "./db";
-import * as cli from "../../cli";
+import * as cli from "../../packages/cli";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
