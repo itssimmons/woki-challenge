@@ -1,7 +1,7 @@
 type GapKind = "combo" | "single";
 
 interface Gap {
-  kind: GapKink;
+  kind: GapKind;
   tableIds: string[];
   maxSize: number;
   minSize: number;
