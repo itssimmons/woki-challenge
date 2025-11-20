@@ -18,3 +18,6 @@ coverage/
 
 # Debugging
 debug/
+
+# Distribution
+dist/

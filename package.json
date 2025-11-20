@@ -7,8 +7,8 @@
 	"scripts": {
 		"start": "pnpm build && pnpm serve",
 		"dev": "tsx --env-file=.env.development app/main.ts",
-		"serve": "node --env-file=.env.production dist/index.js",
-		"build": "esbuild app/main.ts --bundle src",
+		"serve": "node dist/index.js",
+		"build": "node esbuild.config.js",
 		"exec": "npx tsx --no-warnings",
 		"serve:ts": "node --import=tsx src/index.ts",
 		"format": "prettier --write app/**/*.ts",
