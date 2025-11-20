@@ -1,6 +1,9 @@
 import fastify from "fastify";
+import logging from "./config/logging";
+import env from "./config/env";
+
 const f = fastify({
-	logger: true,
+	logger: logging[env('NODE_ENV', 'development')],
 });
 
 f.addHook("preHandler", (_, reply, done) => {
