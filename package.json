@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"start": "pnpm build && pnpm serve",
-		"dev": "tsx --env-file=.env.development app/main.ts",
+		"dev": "tsx --env-file=.env.development app/server.ts",
 		"serve": "node dist/index.js",
 		"build": "node esbuild.config.js",
 		"exec": "npx tsx --no-warnings",
