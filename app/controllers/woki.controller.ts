@@ -132,32 +132,43 @@ export default class WokiController {
   }
 
   public static day(req: FastifyRequest, reply: FastifyReply) {
-    const { restaurantId, sectorId, date } = req.query as {
-      restaurantId: ID;
-      sectorId: ID;
-      date: Timestamp;
-    };
-
     try {
-      reply.code(200).send([
-        {
-          date: "2025-10-22",
-          items: [
-            {
-              id: "BK_001",
-              tableIds: ["T4"],
-              partySize: 5,
-              start: "2025-10-22T20:00:00-03:00",
-              end: "2025-10-22T21:30:00-03:00",
-              status: "CONFIRMED",
-            },
-          ],
-        },
-      ]);
+      const { restaurantId, sectorId, date } =
+        RequestValidations.DayQuery.parse(req.query);
+
+      const stmt = sqlite.prepare(/*sql*/ `
+    		SELECT
+					b.id,
+					GROUP_CONCAT(bt.table_id) AS tableIds,
+					b.party_size as partySize,
+					b.start,
+					b.end,
+					b.status
+				FROM bookings b
+				INNER JOIN booked_tables bt ON b.id = bt.booking_id
+				WHERE b.restaurant_id = :restaurantId
+					AND b.sector_id = :sectorId
+					AND DATE(b.start) = DATE(:date)
+				GROUP BY b.id
+			`);
+
+      const bookings = stmt.all({ restaurantId, sectorId, date }).map((b) => ({
+        ...b,
+        tableIds: (b.tableIds as string).split(","),
+      })) as Array<Bookings>;
+
+      reply.code(HttpStatus.Ok).send({ date, items: bookings });
     } catch (e) {
-      // Unexpected error
-      req.log.error(e);
-      reply.code(500).send();
+      if (e instanceof z.ZodError) {
+        reply.code(HttpStatus.BadRequest).send({
+          error: "bad_request",
+          detail: e.issues,
+        });
+      } else {
+        // Unexpected error
+        req.log.error(e);
+        reply.code(HttpStatus.InternalServerError).send();
+      }
     }
   }
 
