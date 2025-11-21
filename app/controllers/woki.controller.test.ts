@@ -1,65 +1,68 @@
-import WokiController from "./woki.controller";
-import sqlite from "../database/db";
-import build from '../app'
+import sqlite from "../database/driver/sqlite";
+import build from "../app";
 
-jest.mock("../database/db", () => ({
+jest.mock("../database/driver/sqlite", () => ({
   __esModule: true,
   default: {
-    prepare: jest.fn()
+    prepare: jest.fn(),
   },
 }));
 
 describe("DELETE /1/woki/bookings/:id", () => {
-	const app = build()
+  const app = build();
 
-	beforeEach(() => {
-		jest.resetAllMocks();
-	});
-  
-	it('Should cancel at least 1 booking', async () => {
-		const mockGet = jest.fn().mockReturnValue({ 1: 1 });
-		const mockRun = jest.fn();
-	
-		const mockPrepare = (sqlite.prepare as jest.Mock)
-			.mockImplementationOnce(() => ({ get: mockGet })) // SELECT 1...
-			.mockImplementationOnce(() => ({ run: mockRun })); // DELETE ...
-			
-		const bookingId = 'BK_001'
-		const response = await app.inject({
-			method: 'DELETE',
-			url: `/1/woki/bookings/${bookingId}`
-		});
-			
-		expect(mockPrepare).toHaveBeenNthCalledWith(
-			1, `SELECT 1 FROM bookings WHERE id = ?`
-		);
-		expect(mockGet).toHaveBeenCalledWith(bookingId);
-		
-		expect(mockPrepare).toHaveBeenNthCalledWith(
-			2, `DELETE FROM bookings WHERE id = ?`
-		);
-		expect(mockRun).toHaveBeenCalledWith(bookingId);
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
 
-		expect(response.statusCode).toStrictEqual(204);
-	});
-	
-	it("Shouldn't find any booking due to its inexistence", async () => {
-		const mockGet = jest.fn().mockReturnValue(undefined);
-	
-		const mockPrepare = (sqlite.prepare as jest.Mock)
-			.mockImplementationOnce(() => ({ get: mockGet })) // SELECT 1...
-			
-		const bookingId = 'BK_09X'
-		const response = await app.inject({
-			method: 'DELETE',
-			url: `/1/woki/bookings/${bookingId}`
-		});
-			
-		expect(mockPrepare).toHaveBeenNthCalledWith(
-			1, `SELECT 1 FROM bookings WHERE id = ?`
-		);
-		expect(mockGet).toHaveBeenCalledWith(bookingId);
+  it("Should cancel at least 1 booking", async () => {
+    const mockGet = jest.fn().mockReturnValue({ 1: 1 });
+    const mockRun = jest.fn();
 
-		expect(response.statusCode).toStrictEqual(404);
-	});
+    const mockPrepare = (sqlite.prepare as jest.Mock)
+      .mockImplementationOnce(() => ({ get: mockGet })) // SELECT 1...
+      .mockImplementationOnce(() => ({ run: mockRun })); // DELETE ...
+
+    const bookingId = "BK_001";
+    const response = await app.inject({
+      method: "DELETE",
+      url: `/1/woki/bookings/${bookingId}`,
+    });
+
+    expect(mockPrepare).toHaveBeenNthCalledWith(
+      1,
+      `SELECT 1 FROM bookings WHERE id = ?`,
+    );
+    expect(mockGet).toHaveBeenCalledWith(bookingId);
+
+    expect(mockPrepare).toHaveBeenNthCalledWith(
+      2,
+      `DELETE FROM bookings WHERE id = ?`,
+    );
+    expect(mockRun).toHaveBeenCalledWith(bookingId);
+
+    expect(response.statusCode).toStrictEqual(204);
+  });
+
+  it("Shouldn't find any booking due to its inexistence", async () => {
+    const mockGet = jest.fn().mockReturnValue(undefined);
+
+    const mockPrepare = (sqlite.prepare as jest.Mock).mockImplementationOnce(
+      () => ({ get: mockGet }),
+    ); // SELECT 1...
+
+    const bookingId = "BK_09X";
+    const response = await app.inject({
+      method: "DELETE",
+      url: `/1/woki/bookings/${bookingId}`,
+    });
+
+    expect(mockPrepare).toHaveBeenNthCalledWith(
+      1,
+      `SELECT 1 FROM bookings WHERE id = ?`,
+    );
+    expect(mockGet).toHaveBeenCalledWith(bookingId);
+
+    expect(response.statusCode).toStrictEqual(404);
+  });
 });

@@ -1,5 +1,5 @@
-import sqlite from "../database/db";
-import backtrack from "../lib/utils/backtracking";
+import sqlite from "@database/driver/sqlite";
+import backtrack from "@lib/utils/backtracking";
 
 const TABLE_COMBO_LIMIT = 2;
 

@@ -3,7 +3,13 @@
 	"semi": true,
 	"trailingComma": "none",
 	"singleQuote": true,
-	"plugins": ["prettier-plugin-sort-imports"],
-	"importOrder": ["^node:", "^[a-zA-Z]", "^[./]"],
+	"plugins": ["@ianvs/prettier-plugin-sort-imports"],
+	"importOrder": [
+		"<BUILTIN_MODULES>",
+		"<THIRD_PARTY_MODULES>",
+		"",
+		"<TYPES>",
+		"^[.]"
+	],
 	"importOrderSeparation": true
 }

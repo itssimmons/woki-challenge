@@ -1,14 +1,27 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"compilerOptions": {
-		"module": "es2020",
-		"lib": ["ES2020"],
+		"module": "es2022",
+		"lib": ["ES2022"],
 		"esModuleInterop": true,
 		"moduleResolution": "node",
 		"strict": true,
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+
+		"rootDir": ".",
+		"paths": {
+			"@bootstrap/*": ["./app/bootstrap/*"],
+			"@config/*": ["./app/config/*"],
+			"@controllers/*": ["./app/controllers/*"],
+			"@database/*": ["./app/database/*"],
+			"@domain/*": ["./app/domain/*"],
+			"@exceptions/*": ["./app/exceptions/*"],
+			"@lib/*": ["./app/lib/*"],
+			"@routes/*": ["./app/routes/*"],
+			"@validations/*": ["./app/validations/*"]
+		}
 	},
 	"include": ["**/*.ts", "**/*.d.ts"],
 	"exclude": ["node_modules"]

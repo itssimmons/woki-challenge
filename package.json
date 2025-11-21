@@ -6,12 +6,12 @@
 	"type": "module",
 	"scripts": {
 		"start": "pnpm build && pnpm serve",
-		"dev": "tsx --env-file=.env.development app/server.ts",
+		"dev": "tsx --tsconfig=./tsconfig.app.json --env-file=.env.development app/server.ts",
 		"serve": "node dist/index.js",
 		"build": "node esbuild.config.js",
 		"exec": "npx tsx --no-warnings",
 		"serve:ts": "node --import=tsx src/index.ts",
-		"format": "prettier --write app/**/*.ts",
+		"format": "prettier --write '**/*.ts'",
 		"test": "jest"
 	},
 	"keywords": [],
@@ -19,7 +19,8 @@
 	"license": "ISC",
 	"packageManager": "pnpm@10.13.1",
 	"devDependencies": {
-		"@trivago/prettier-plugin-sort-imports": "^6.0.0",
+		"@esbuild-plugins/tsconfig-paths": "^0.1.2",
+		"@ianvs/prettier-plugin-sort-imports": "^4.7.0",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.10.0",
 		"esbuild": "^0.25.12",

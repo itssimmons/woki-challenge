@@ -1,10 +1,11 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "./tsconfig.app.json",
 	"compilerOptions": {
 		"noEmit": false,
 		"emitDeclarationOnly": false,
 		"esModuleInterop": true,
 		"types": ["jest", "node"]
 	},
-	"include": ["app/**/*.ts", "app/**/*.d.ts", "**/*.test.ts", "**/*.spec.ts"]
+	"include": ["**/*.ts", "**/*.d.ts", "**/*.test.ts", "**/*.spec.ts"]
 }

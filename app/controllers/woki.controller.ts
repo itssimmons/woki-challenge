@@ -1,10 +1,10 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import z from "zod";
 
-import sqlite from "../database/db";
-import Exception from "../exceptions";
-import HttpStatus from "../consts/HttpStatus";
-import RequestValidations from "../validations/request.validations";
+import sqlite from "@database/driver/sqlite";
+import Exception from "@exceptions/index";
+import HttpStatus from "@lib/consts/HttpStatus";
+import RequestValidations from "@validations/request.validations";
 
 type DiscoverQuery = {
   restaurantId: ID;
@@ -25,6 +25,15 @@ type BookBody = {
   date: string;
   windowStart: string;
   windowEnd: string;
+};
+
+type Bookings = {
+  id: ID;
+  tableIds: Array<ID>;
+  partySize: number;
+  start: Timestamp;
+  end: Timestamp;
+  status: string;
 };
 
 export default class WokiController {

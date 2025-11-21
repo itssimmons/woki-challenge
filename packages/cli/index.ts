@@ -3,32 +3,32 @@ const log = console.log.bind(console);
 type SpecialChars = "." | "*" | "_" | "-" | " ";
 
 type Important<T> = {
-	[K in keyof T]-?: T[K] extends object ? Important<T[K]> : NonNullable<T[K]>;
+  [K in keyof T]-?: T[K] extends object ? Important<T[K]> : NonNullable<T[K]>;
 };
 
 interface IndexPrintPadding {
-	outside: number;
-	inner: number;
+  outside: number;
+  inner: number;
 }
 
 interface IndexPrintOptions {
-	character: SpecialChars;
-	padding: Partial<IndexPrintPadding>;
+  character: SpecialChars;
+  padding: Partial<IndexPrintPadding>;
 }
 
 const defaultValue: IndexPrintOptions = {
-	character: ".",
-	padding: {
-		outside: 2,
-		inner: 1,
-	},
+  character: ".",
+  padding: {
+    outside: 2,
+    inner: 1,
+  },
 };
 
 function withDefaults<T>(defaults: T, provided: Partial<T>): Important<T> {
-	return {
-		...defaults,
-		...provided,
-	} as Important<T>;
+  return {
+    ...defaults,
+    ...provided,
+  } as Important<T>;
 }
 
 /**
@@ -60,30 +60,30 @@ function withDefaults<T>(defaults: T, provided: Partial<T>): Important<T> {
  *
  */
 export const indexPrint = (
-	label: string,
-	value: string,
-	opts: Partial<IndexPrintOptions> = defaultValue,
+  label: string,
+  value: string,
+  opts: Partial<IndexPrintOptions> = defaultValue,
 ) => {
-	const options = withDefaults(defaultValue, opts);
-	const terminalWidth = process.stdout.columns || 160;
+  const options = withDefaults(defaultValue, opts);
+  const terminalWidth = process.stdout.columns || 160;
 
-	const dots = options.character.repeat(
-		Math.max(
-			2,
-			terminalWidth -
-				label.length -
-				value.length -
-				options.padding.outside * 2 -
-				options.padding.inner * 2,
-		),
-	);
-	log(
-		" ".repeat(options.padding.outside) +
-			label +
-			" ".repeat(options.padding.inner) +
-			dots +
-			" ".repeat(options.padding.inner) +
-			value +
-			" ".repeat(options.padding.inner),
-	);
+  const dots = options.character.repeat(
+    Math.max(
+      2,
+      terminalWidth -
+        label.length -
+        value.length -
+        options.padding.outside * 2 -
+        options.padding.inner * 2,
+    ),
+  );
+  log(
+    " ".repeat(options.padding.outside) +
+      label +
+      " ".repeat(options.padding.inner) +
+      dots +
+      " ".repeat(options.padding.inner) +
+      value +
+      " ".repeat(options.padding.inner),
+  );
 };

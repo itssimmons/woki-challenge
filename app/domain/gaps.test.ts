@@ -1,7 +1,7 @@
 import { discover } from "./gaps";
-import sqlite from "../database/db";
+import sqlite from "../database/driver/sqlite";
 
-jest.mock("../database/db", () => ({
+jest.mock("../database/driver/sqlite", () => ({
   __esModule: true,
   default: {
     prepare: jest.fn(),
