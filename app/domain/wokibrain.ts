@@ -9,15 +9,17 @@ type ScoredGap = Extend<Gap, { score: number }>;
  *
  * @example
  * const gaps: Gap[] = [
- * 	{ id: "1", minSize: 2, maxSize: 4, kind: "single" },
- * 	{ id: "2", minSize: 4, maxSize: 6, kind: "combo" },
+ * 	{ minSize: 2, maxSize: 4, kind: "single", tableIds: ["T1"] },
+ * 	{ minSize: 4, maxSize: 6, kind: "combo", tableIds: ["T1", "T2"] },
+ * 	{ minSize: 3, maxSize: 3, kind: "combo", tableIds: ["T3", "T4"] },
  * ];
  *
- * // rank(gaps, 4);
- * // [
- * //   { id: "1", minSize: 2, maxSize: 4, kind: "single", score: '10.0' },
- * //   { id: "2", minSize: 4, maxSize: 6, kind: "combo", score: '8.0' },
- * // ];
+ * rank(gaps, 4);
+ * [
+ *   { score: 10.0, minSize: 2, maxSize: 4, kind: "single", ... },
+ *   { score: 8.0, minSize: 4, maxSize: 6, kind: "combo", ... },
+ *   { score: 0.0, minSize: 3, maxSize: 3, kind: "combo", ... },
+ * ];
  *
  * @param gaps An array of Gap objects to be ranked.
  * @param capacity The required capacity to accommodate.
