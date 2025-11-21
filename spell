@@ -1,18 +1,41 @@
 #!/bin/bash
+set -euo pipefail
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 Args="${@:2}"
 
+check_nodejs_version() {
+	echo 'Obtaining Node.js version from .nvmrc'
+	source $NVM_DIR/nvm.sh
+
+	nvm use $(cat $SCRIPT_DIR/.node-version) || {
+		echo 'Failed to obtain Node.js version from .nvmrc. Exitting.'
+		echo 'Would you like to install it now? (y/n)'
+		read -r answer
+		[[ $answer == "y" ]] && nvm install $(cat $SCRIPT_DIR/.nvmrc)
+		exit 1
+	}
+	
+	ls $SCRIPT_DIR/node_modules/.bin/ >/dev/null 2>&1 || {
+		echo 'Node.js dependencies not installed. Installing now...'
+		pnpm install --prefix $SCRIPT_DIR/app
+	}
+}
+
 case $1 in
 	'database')
+		check_nodejs_version
 		pnpm run exec $SCRIPT_DIR/app/database/commands.ts $Args
 	;;
 	'sqlite')
 		sqlite3 $SCRIPT_DIR/app/database/database.sqlite3 $Args
 	;;
 	'start')
+		check_nodejs_version
 		pnpm run dev $Args
 	;;
 	'exec')
+		check_nodejs_version
 		pnpm run exec $Args
 	;;
 	*)
