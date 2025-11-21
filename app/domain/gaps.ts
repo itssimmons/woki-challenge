@@ -51,6 +51,7 @@ export function discover({
 				JOIN bookings b ON bt.booking_id = b.id
 				WHERE
     			bt.table_id = t.id
+       		AND b.status = 'CONFIRMED'
 					AND NOT (
 						b.end < datetime(:startDate) OR
 						b.start >= datetime(:endDate)
