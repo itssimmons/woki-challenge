@@ -7,3 +7,9 @@ type Edit<T extends object, Key, Type> = {
 };
 
 type Extend<T, O> = T & O;
+
+type Tuple<T extends Array<any>> = Readonly<[...T]>;
+
+type Digit = `${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`;
+
+type Falsy = false | 0 | "" | null | undefined;

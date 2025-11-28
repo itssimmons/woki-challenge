@@ -32,6 +32,7 @@
 	},
 	"dependencies": {
 		"chalk": "^5.6.2",
+		"dayjs": "^1.11.19",
 		"fastify": "^5.6.1",
 		"zod": "^4.1.12"
 	}
