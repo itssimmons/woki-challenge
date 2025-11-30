@@ -1,10 +1,11 @@
 name: jest testing
 
 on:
+  workflow_dispatch:
   push:
     paths: 
       - '**/*.test.ts'
-      - '**/*.spect.ts'
+      - '**/*.spec.ts'
 
 jobs:
   coverage:
