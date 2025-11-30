@@ -1,4 +1,6 @@
 import dayjs from "@lib/addons/dayjs";
+import { diff } from "node:util";
+import { includes } from "zod";
 
 namespace Clock {
   // 00 - 23
@@ -25,42 +27,40 @@ namespace Clock {
    */
   export function slots(
     of: number,
-    options: {
+    {
+      tz = "UTC",
+      ...options
+    }: {
       include: Tuple<[dayjs.Dayjs, dayjs.Dayjs]>;
-      exclude?: Array<Tuple<[Clock.Time, Clock.Time]>>;
+      exclude?: Array<Tuple<[dayjs.Dayjs, dayjs.Dayjs]>>;
+      tz?: string;
     },
-  ): Array<Tuple<[dayjs.Dayjs, dayjs.Dayjs]>> {
+  ): Array<Tuple<[ISOTimeStamp, ISOTimeStamp]>> {
     const [start, end] = options.include;
 
-    let prev = start.clone();
-    let next = start.clone();
-
     const s: ReturnType<typeof slots> = [];
+    let current = start.clone();
 
     while (true) {
-      const slotStart = prev.clone();
-      const slotEnd = next.add(of, "minute");
+      const slotStart = current.clone();
+      const slotEnd = current.add(of, "minute");
+      let skip = false;
 
       if (options.exclude) {
-        const exclude = options.exclude.some(([exStartTime, exEndTime]) => {
-          const exStart = Clock.replaceTime(slotStart, exStartTime);
-          const exEnd = Clock.replaceTime(slotEnd, exEndTime);
-          return slotStart.isBefore(exEnd) && slotEnd.isAfter(exStart);
-        });
-
-        if (exclude) {
-          prev = slotEnd;
-          next = slotEnd;
-          continue;
+        for (const [exStart, exEnd] of options.exclude) {
+          if (slotStart.isBefore(exEnd) && slotEnd.isAfter(exStart)) {
+            current = exEnd.clone();
+            skip = true;
+            break;
+          }
         }
       }
 
-      if (slotEnd > end) break;
+      if (skip) continue;
+      if (slotEnd.isAfter(end)) break;
 
-      s.push([slotStart, slotEnd]);
-
-      prev = slotEnd;
-      next = slotEnd;
+      s.push([slotStart.tz(tz).format(), slotEnd.tz(tz).format()]);
+      current = slotEnd;
     }
     return s;
   }
@@ -68,9 +68,44 @@ namespace Clock {
   export function replaceTime(
     base: dayjs.Dayjs,
     time: Clock.Time,
+    tz: string = "UTC",
   ): dayjs.Dayjs {
     const [hours, minutes] = time.split(":").map(Number);
-    return dayjs.utc(base).hour(hours).minute(minutes).second(0).millisecond(0);
+    return base
+      .clone()
+      .tz(tz)
+      .hour(hours)
+      .minute(minutes)
+      .second(0)
+      .millisecond(0);
+  }
+
+  export function offset(iana: string) {
+    return dayjs().tz(iana).format("Z");
+  }
+
+  export function slotDiff(
+    slots: Array<Tuple<[Clock.Time, Clock.Time]>>,
+  ): Array<Tuple<[Clock.Time | null, Clock.Time | null]>> {
+    if (slots.length === 0) return [[null, null]];
+
+    const diffs: Array<[Clock.Time | null, Clock.Time | null]> = Array.from(
+      { length: slots.length + 1 },
+      () => [null, null],
+    );
+
+    diffs[0][1] = slots[0][0] as Clock.Time;
+    diffs[diffs.length - 1][0] = slots[slots.length - 1][1] as Clock.Time;
+
+    for (let i = 1; i < slots.length; ++i) {
+      const prevWindow = slots[i - 1];
+      const currWindow = slots[i];
+
+      if (prevWindow) diffs[i][0] = prevWindow[1] as Clock.Time;
+      if (currWindow) diffs[i][1] = currWindow[0] as Clock.Time;
+    }
+
+    return diffs;
   }
 }
 

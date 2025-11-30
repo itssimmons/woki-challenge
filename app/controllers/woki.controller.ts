@@ -5,17 +5,13 @@ import sqlite from "@database/driver/sqlite";
 import Exception from "@exceptions/index";
 import HttpStatus from "@lib/consts/HttpStatus";
 import RequestValidations from "@validations/request.validations";
-
-type DiscoverQuery = {
-  restaurantId: ID;
-  sectorId: ID;
-  date: Timestamp;
-  partySize: number;
-  duration: number;
-  windowStart?: string;
-  windowEnd?: string;
-  limit?: number;
-};
+import Clock from "@lib/prototypes/clock";
+import dayjs from "@lib/addons/dayjs";
+import { rank } from "@domain/wokibrain";
+import { discover } from "@domain/gaps";
+import withDefault from "@lib/utils/withDefault";
+import "@lib/prototypes/array";
+import { fa } from "zod/v4/locales";
 
 type BookBody = {
   restaurantId: ID;
@@ -31,58 +27,140 @@ type Bookings = {
   id: ID;
   tableIds: Array<ID>;
   partySize: number;
-  start: Timestamp;
-  end: Timestamp;
+  start: ISOTimeStamp;
+  end: ISOTimeStamp;
   status: string;
 };
 
 export default class WokiController {
   public static discover(req: FastifyRequest, reply: FastifyReply) {
-    const {
-      restaurantId,
-      sectorId,
-      date,
-      partySize,
-      duration,
-      windowStart,
-      windowEnd,
-      limit,
-    } = req.query as DiscoverQuery;
-
     try {
+      let {
+        restaurantId,
+        sectorId,
+        date,
+        partySize,
+        duration,
+        windowStart = undefined,
+        windowEnd = undefined,
+        limit = 10,
+      } = RequestValidations.DiscoverQuery.parse(req.query);
+
+      const timeZone = (sqlite
+        .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
+        .get(restaurantId)?.timezone || "UTC") as string;
+
+      const openHours = sqlite
+        .prepare(
+          /*sql*/ `SELECT start, end FROM windows WHERE restaurant_id = ?`,
+        )
+        .all(restaurantId)
+        .map(Object.values) as unknown as Array<
+        Tuple<[Clock.Time, Clock.Time]>
+      >;
+
+      const closedHours = Clock.slotDiff(openHours);
+      const isClosed = closedHours.some(([start, end]) => {
+        if (windowStart && windowEnd) {
+          return (
+            (start === null || windowEnd > start) &&
+            (end === null || windowStart < end)
+          );
+        } else if (windowStart) {
+          return end === null || windowStart < end;
+        } else if (windowEnd) {
+          return start === null || windowEnd > start;
+        } else {
+          return false;
+        }
+      });
+
+      if (isClosed) {
+        throw new Exception.OutOfWindow();
+      }
+
+      const [defaultWindowStartTime] = openHours.at(0)!;
+      const [, defaultWindowEndTime] = openHours.at(-1)!;
+
+      const defaultStartTime = withDefault(
+        windowStart,
+        defaultWindowStartTime,
+      ) as Clock.Time;
+      const defaultEndTime = withDefault(
+        windowEnd,
+        defaultWindowEndTime,
+      ) as Clock.Time;
+
+      const start = Clock.replaceTime(
+        dayjs(date, "YYYY-MM-DD"),
+        defaultStartTime,
+        timeZone,
+      );
+      const end = Clock.replaceTime(
+        dayjs(date, "YYYY-MM-DD"),
+        defaultEndTime,
+        timeZone,
+      );
+
+      const exclude: Array<Tuple<[dayjs.Dayjs, dayjs.Dayjs]>> = closedHours
+        // remove leading/trailing nulls
+        .slice(1, -1)
+        .map(([s, e]) => [
+          Clock.replaceTime(dayjs(date, "YYYY-MM-DD"), s!, timeZone),
+          Clock.replaceTime(dayjs(date, "YYYY-MM-DD"), e!, timeZone),
+        ]);
+
+      const slots = Clock.slots(duration, {
+        tz: timeZone,
+        include: [start, end],
+        exclude,
+      });
+
+      const candidates = [];
+
+      for (const [startDate, endDate] of slots) {
+        const gap = discover({
+          restaurantId,
+          sectorId,
+          partySize,
+          startDate: startDate,
+          endDate: endDate,
+        });
+
+        if (gap.length > 0) {
+          candidates.push(...rank(gap, partySize));
+        }
+      }
+
+      if (candidates.length <= 0) {
+        throw new Exception.NoCapacity();
+      }
+
       reply.code(200).send({
-        slotMinutes: 15,
-        durationMinutes: 90,
-        candidates: [
-          {
-            kind: "single",
-            tableIds: ["T4"],
-            start: "2025-10-22T20:00:00-03:00",
-            end: "2025-10-22T21:30:00-03:00",
-          },
-          {
-            kind: "combo",
-            tableIds: ["T2", "T3"],
-            start: "2025-10-22T20:15:00-03:00",
-            end: "2025-10-22T21:45:00-03:00",
-          },
-        ],
+        slotMinutes: duration,
+        durationMinutes: duration,
+        candidates: candidates.limit(limit).sortBy("score", "DESC"),
       });
     } catch (e) {
-      if (e instanceof Exception.OutOfWindow) {
-        reply.code(400).send({
+      if (e instanceof z.ZodError) {
+        reply.code(HttpStatus.BadRequest).send({
+          error: "bad_request",
+          detail: e.issues,
+        });
+      } else if (e instanceof Exception.OutOfWindow) {
+        reply.code(HttpStatus.UnprocessableEntity).send({
           error: "outside_service_window",
           detail: "Window does not intersect service hours",
         });
       } else if (e instanceof Exception.NoCapacity) {
-        reply.code(409).send({
+        reply.code(HttpStatus.Conflict).send({
           error: "no_capacity",
           detail: "No single or combo gap fits duration within window",
         });
       } else {
         // Unexpected error
         req.log.error(e);
-        reply.code(500).send();
+        reply.code(HttpStatus.InternalServerError).send();
       }
     }
   }
