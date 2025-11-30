@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import sqlite from "@database/driver/sqlite";
 import * as cli from "../../packages/cli";
+import env from "@config/env";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +17,7 @@ namespace DB {
   export async function wipe() {
     log();
     try {
-      await fs.writeFile("./app/database/database.sqlite3", "", {
+      await fs.writeFile(env("DB_MEMORY_PATH", ":memory:"), "", {
         encoding: "utf-8",
       });
 
