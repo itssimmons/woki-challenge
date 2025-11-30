@@ -9,7 +9,7 @@
 		"dev": "tsx --watch --tsconfig=./tsconfig.app.json --env-file=.env.development app/server.ts",
 		"serve": "node dist/index.js",
 		"build": "node esbuild.config.js",
-		"exec": "npx tsx --no-warnings",
+		"exec": "npx tsx --no-warnings --tsconfig=./tsconfig.app.json --env-file=.env.development",
 		"serve:ts": "node --import=tsx src/index.ts",
 		"format": "prettier --write '**/*.ts'",
 		"test": "jest"

@@ -7,8 +7,8 @@ interface DiscoverSettings {
   restaurantId: ID;
   sectorId: ID;
   partySize: number;
-  startDate: Timestamp;
-  endDate: Timestamp;
+  startDate: ISOTimeStamp;
+  endDate: ISOTimeStamp;
 }
 
 type AuxGap = Extend<Edit<Gap, "kind", string>, { sectorId: ID }>;
@@ -72,6 +72,8 @@ export function discover({
     sectorId: table.sector_id,
     maxSize: table.max_size,
     minSize: table.min_size,
+    startDate,
+    endDate,
   }));
 
   const full = [];
@@ -88,6 +90,7 @@ export function discover({
   const combos = backtrack(
     partial,
     function reject(path) {
+      // TODO: make combos until they reach the party size instead of limiting by number of tables
       if (path.length > TABLE_COMBO_LIMIT) return true;
 
       // avoid duplicates (e.g: [T1, T1])
@@ -125,6 +128,8 @@ export function discover({
       sectorId: combo[0].sectorId,
       maxSize: combo.reduce((sum, g) => sum + g.maxSize, 0),
       minSize: combo.reduce((sum, g) => sum + g.minSize, 0),
+      startDate,
+      endDate,
     })),
   ] as Gap[];
 }

@@ -4,6 +4,6 @@ interface Table {
   name: string;
   min_size: number;
   max_size: number;
-  created_at: Timestamp;
-  updated_at: Timestamp;
+  created_at: ISOTimeStamp;
+  updated_at: ISOTimeStamp;
 }

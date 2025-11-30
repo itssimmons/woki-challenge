@@ -1,6 +1,6 @@
 type ID = string;
 
-type Timestamp = string;
+type ISOTimeStamp = string;
 
 type Edit<T extends object, Key, Type> = {
   [K in keyof T]: K extends Key ? Type : T[K];

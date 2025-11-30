@@ -5,4 +5,6 @@ interface Gap {
   tableIds: string[];
   maxSize: number;
   minSize: number;
+  startDate: ISOTimeStamp;
+  endDate: ISOTimeStamp;
 }

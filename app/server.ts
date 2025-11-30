@@ -1,7 +1,8 @@
+import "@bootstrap/boot";
+
 import build from "./app";
 import env from "./config/env";
 import logging from "./config/logging";
-import "@bootstrap/boot";
 
 const f = build({
   logger: logging[env("NODE_ENV", "development")],
