@@ -2,9 +2,14 @@
 	{
 		"label": "TypeScript Debugging",
 		"adapter": "JavaScript",
-		"type": "node",
+		"type": "pwa-node",
 		"request": "launch",
 		"program": "${ZED_WORKTREE_ROOT}/debug/${ZED_RELATIVE_DIR}/${ZED_STEM}.js",
+		"runtimeExecutable": "$HOME/.nvm/versions/node/v24.11.0/bin/node",
+		"runtimeArgs": [
+			"--inspect-brk"
+		],
+		"console": "integratedTerminal",
 		"cwd": "$ZED_WORKTREE_ROOT",
 		"build": "tsc: debug build"
 	}

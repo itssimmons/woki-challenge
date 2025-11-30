@@ -1,5 +1,4 @@
 import { build } from "esbuild";
-import TsconfigPathsPlugin from "@esbuild-plugins/tsconfig-paths";
 
 build({
 	entryPoints: ["app/main.ts"],
@@ -8,11 +7,7 @@ build({
 	minify: true,
 	format: "esm",
 	platform: "node",
-	plugins: [
-		TsconfigPathsPlugin({
-			tsconfig: "./tsconfig.build.json",
-		}),
-	],
+	tsconfig: "tsconfig.build.json",
 	external: [
 		"fastify",
 		"fastify/*",

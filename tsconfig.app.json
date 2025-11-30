@@ -10,6 +10,7 @@
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
 
+		"plugins": [{ "transform": "typescript-transform-paths" }],
 		"rootDir": ".",
 		"paths": {
 			"@bootstrap/*": ["./app/bootstrap/*"],

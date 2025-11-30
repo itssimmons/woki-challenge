@@ -5,36 +5,40 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 Args="${@:2}"
 
 check_nodejs_version() {
-	echo 'Obtaining Node.js version from .nvmrc'
+	echo 'Obtaining Node.js version from .node-version'
 	source $NVM_DIR/nvm.sh
 
 	nvm use $(cat $SCRIPT_DIR/.node-version) || {
-		echo 'Failed to obtain Node.js version from .nvmrc. Exitting.'
+		echo 'Failed to obtain Node.js version from .node-version. Exitting.'
 		echo 'Would you like to install it now? (y/n)'
 		read -r answer
-		[[ $answer == "y" ]] && nvm install $(cat $SCRIPT_DIR/.nvmrc)
+		[[ $answer == "y" ]] && nvm install $(cat $SCRIPT_DIR/.node-version)
 		exit 1
 	}
 	
 	ls $SCRIPT_DIR/node_modules/.bin/ >/dev/null 2>&1 || {
 		echo 'Node.js dependencies not installed. Installing now...'
-		pnpm install --prefix $SCRIPT_DIR/app
+		pnpm install
 	}
 }
 
 case $1 in
-	'database')
+	'database'|'db')
 		check_nodejs_version
 		pnpm run exec $SCRIPT_DIR/app/database/commands.ts $Args
 	;;
-	'sqlite')
+	'sqlite'|'sql')
 		sqlite3 $SCRIPT_DIR/app/database/database.sqlite3 $Args
 	;;
-	'start')
+	'start'|'s')
 		check_nodejs_version
 		pnpm run dev $Args
 	;;
-	'exec')
+	'test'|'t')
+		check_nodejs_version
+		pnpm t $Args
+	;;
+	'exec'|'x')
 		check_nodejs_version
 		pnpm run exec $Args
 	;;
