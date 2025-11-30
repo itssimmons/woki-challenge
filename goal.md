@@ -3,7 +3,7 @@
 > **Purpose (Woki):** A compact, Woki-branded challenge that discovers **when** and **how** to seat a party using **single tables or table combinations**. Focus on gap discovery, deterministic **WokiBrain** selection, and a minimal yet robust API.
 
 ---
-§
+
 ## 1. Goal
 
 Implement **WokiBrain**, a small booking engine for restaurants that:
@@ -20,15 +20,16 @@ Implement **WokiBrain**, a small booking engine for restaurants that:
 
 ## 2. Time Model
 
-| Aspect | Description |
-|--------|-------------|
-| **Grid** | Fixed 15-te granularity |
-| **Durations** | Multiples of 15 minutes (min 30, max 180 **suggested**) |
-| **Intervals** | **[start, end)** (end exclusive); adjacent bookings do not conflict |
-| **Timezone** | IANA per **Restaurant** (e.g., `America/Argentina/Buenos_Aires`) |
+| Aspect              | Description                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| **Grid**            | Fixed 15-te granularity                                                  |
+| **Durations**       | Multiples of 15 minutes (min 30, max 180 **suggested**)                  |
+| **Intervals**       | **[start, end)** (end exclusive); adjacent bookings do not conflict      |
+| **Timezone**        | IANA per **Restaurant** (e.g., `America/Argentina/Buenos_Aires`)         |
 | **Service windows** | Optional array per restaurant/sector: `{ start: "HH:mm", end: "HH:mm" }` |
 
 **Service Window Rules:**
+
 - If present: bookings must lie entirely within one window
 - If absent: treat the full day as open
 
@@ -42,52 +43,53 @@ All entities have `createdAt` and `updatedAt` (ISO 8601).
 type ISODateTime = string;
 
 interface Restaurant {
-  id: string;
-  name: string;
-  timezone: string;
-  windows?: Array<{ start: string; end: string }>;
-  createdAt: ISODateTime;
-  updatedAt: ISODateTime;
+	id: string;
+	name: string;
+	timezone: string;
+	windows?: Array<{ start: string; end: string }>;
+	createdAt: ISODateTime;
+	updatedAt: ISODateTime;
 }
 
 interface Sector {
-  id: string;
-  restaurantId: string;
-  name: string;
-  createdAt: ISODateTime;
-  updatedAt: ISODateTime;
+	id: string;
+	restaurantId: string;
+	name: string;
+	createdAt: ISODateTime;
+	updatedAt: ISODateTime;
 }
 
 interface Table {
-  id: string;
-  sectorId: string;
-  name: string;
-  minSize: number;
-  maxSize: number;
-  createdAt: ISODateTime;
-  updatedAt: ISODateTime;
+	id: string;
+	sectorId: string;
+	name: string;
+	minSize: number;
+	maxSize: number;
+	createdAt: ISODateTime;
+	updatedAt: ISODateTime;
 }
 
-type BookingStatus = 'CONFIRMED' | 'CANCELLED';
+type BookingStatus = "CONFIRMED" | "CANCELLED";
 
 interface Booking {
-  id: string;
-  restaurantId: string;
-  sectorId: string;
-  tableIds: string[];         // single or combo (any length)
-  partySize: number;
-  start: ISODateTime;         // [start,end)
-  end: ISODateTime;
-  durationMinutes: number;
-  status: BookingStatus;
-  createdAt: ISODateTime;
-  updatedAt: ISODateTime;
+	id: string;
+	restaurantId: string;
+	sectorId: string;
+	tableIds: string[]; // single or combo (any length)
+	partySize: number;
+	start: ISODateTime; // [start,end)
+	end: ISODateTime;
+	durationMinutes: number;
+	status: BookingStatus;
+	createdAt: ISODateTime;
+	updatedAt: ISODateTime;
 }
 ```
 
 ### Combo Capacity Heuristic (Required)
 
 Define how you compute min/max for any combination of tables:
+
 - Simple sums
 - Sums minus merge penalties
 - Max-of-mins
@@ -110,6 +112,7 @@ For each table and service window on a day:
 ### 4.2 Combo Gaps (N Tables)
 
 For any combination of tables within the sector:
+
 - Intersect their gap sets to obtain combo gaps where all tables are simultaneously free
 - A combo candidate fits if:
   - Intersection gap length ≥ `durationMinutes`
@@ -122,6 +125,7 @@ For any combination of tables within the sector:
 Define your own selection strategy for choosing among valid single-table and combination candidates.
 
 **Your method must:**
+
 - ✅ Be deterministic given the same inputs
 - ✅ Be documented in the README (what it optimizes, any tie-breakers or fairness rules)
 - ✅ Return one feasible option (or `no_capacity`) that respects service windows, grid, and no-overlap
@@ -130,24 +134,26 @@ Define your own selection strategy for choosing among valid single-table and com
 ### 4.4 Atomic Create + Idempotency
 
 **Lock Key:** `(restaurantId, sectorId, tableId(s), start)`
+
 - Use a normalized composite (e.g., `S1|T2+T3|2025-10-22T20:00:00-03:00`)
 - Acquire before writing
 - Release with `finally`
 
 **Collision Check:** After picking the candidate, verify against latest in-memory state
 
-**Idempotency:** 
+**Idempotency:**
+
 - `POST /woki/bookings` accepts `Idempotency-Key`
 - Same key and payload returns the same booking object for at least 60s
 
 ### 4.5 Validation & Errors
 
-| Status | Error | Description |
-|--------|-------|-------------|
-| **400** | `invalid_input` | Non-grid times/durations, bad formats, negative party, etc. |
-| **404** | `not_found` | Restaurant/sector not found |
-| **409** | `no_capacity` | No single nor combo fits on the requested day/window |
-| **422** | `outside_service_window` | Specified window lies outside service hours |
+| Status  | Error                    | Description                                                 |
+| ------- | ------------------------ | ----------------------------------------------------------- |
+| **400** | `invalid_input`          | Non-grid times/durations, bad formats, negative party, etc. |
+| **404** | `not_found`              | Restaurant/sector not found                                 |
+| **409** | `no_capacity`            | No single nor combo fits on the requested day/window        |
+| **422** | `outside_service_window` | Specified window lies outside service hours                 |
 
 ---
 
@@ -158,6 +164,7 @@ Define your own selection strategy for choosing among valid single-table and com
 **Endpoint:** `GET /woki/discover`
 
 **Query Parameters:**
+
 ```
 restaurantId=R1
 sectorId=S1
@@ -173,22 +180,22 @@ limit=10               (optional)
 
 ```json
 {
-  "slotMinutes": 15,
-  "durationMinutes": 90,
-  "candidates": [
-    {
-      "kind": "single",
-      "tableIds": ["T4"],
-      "start": "2025-10-22T20:00:00-03:00",
-      "end": "2025-10-22T21:30:00-03:00"
-    },
-    {
-      "kind": "combo",
-      "tableIds": ["T2", "T3"],
-      "start": "2025-10-22T20:15:00-03:00",
-      "end": "2025-10-22T21:45:00-03:00"
-    }
-  ]
+	"slotMinutes": 15,
+	"durationMinutes": 90,
+	"candidates": [
+		{
+			"kind": "single",
+			"tableIds": ["T4"],
+			"start": "2025-10-22T20:00:00-03:00",
+			"end": "2025-10-22T21:30:00-03:00"
+		},
+		{
+			"kind": "combo",
+			"tableIds": ["T2", "T3"],
+			"start": "2025-10-22T20:15:00-03:00",
+			"end": "2025-10-22T21:45:00-03:00"
+		}
+	]
 }
 ```
 
@@ -197,18 +204,20 @@ limit=10               (optional)
 #### Error Responses
 
 **409 - No Capacity:**
+
 ```json
 {
-  "error": "no_capacity",
-  "detail": "No single or combo gap fits duration within window"
+	"error": "no_capacity",
+	"detail": "No single or combo gap fits duration within window"
 }
 ```
 
 **422 - Outside Service Window:**
+
 ```json
 {
-  "error": "outside_service_window",
-  "detail": "Window does not intersect service hours"
+	"error": "outside_service_window",
+	"detail": "Window does not intersect service hours"
 }
 ```
 
@@ -219,20 +228,22 @@ limit=10               (optional)
 **Endpoint:** `POST /woki/bookings`
 
 **Headers:**
+
 ```http
 Idempotency-Key: abc-123
 ```
 
 **Request Body:**
+
 ```json
 {
-  "restaurantId": "R1",
-  "sectorId": "S1",
-  "partySize": 5,
-  "durationMinutes": 90,
-  "date": "2025-10-22",
-  "windowStart": "20:00",
-  "windowEnd": "23:45"
+	"restaurantId": "R1",
+	"sectorId": "S1",
+	"partySize": 5,
+	"durationMinutes": 90,
+	"date": "2025-10-22",
+	"windowStart": "20:00",
+	"windowEnd": "23:45"
 }
 ```
 
@@ -240,17 +251,17 @@ Idempotency-Key: abc-123
 
 ```json
 {
-  "id": "BK_001",
-  "restaurantId": "R1",
-  "sectorId": "S1",
-  "tableIds": ["T4"],
-  "partySize": 5,
-  "start": "2025-10-22T20:00:00-03:00",
-  "end": "2025-10-22T21:30:00-03:00",
-  "durationMinutes": 90,
-  "status": "CONFIRMED",
-  "createdAt": "2025-10-22T19:50:21-03:00",
-  "updatedAt": "2025-10-22T19:50:21-03:00"
+	"id": "BK_001",
+	"restaurantId": "R1",
+	"sectorId": "S1",
+	"tableIds": ["T4"],
+	"partySize": 5,
+	"start": "2025-10-22T20:00:00-03:00",
+	"end": "2025-10-22T21:30:00-03:00",
+	"durationMinutes": 90,
+	"status": "CONFIRMED",
+	"createdAt": "2025-10-22T19:50:21-03:00",
+	"updatedAt": "2025-10-22T19:50:21-03:00"
 }
 ```
 
@@ -258,8 +269,8 @@ Idempotency-Key: abc-123
 
 ```json
 {
-  "error": "no_capacity",
-  "detail": "No single or combo gap fits duration within window"
+	"error": "no_capacity",
+	"detail": "No single or combo gap fits duration within window"
 }
 ```
 
@@ -270,6 +281,7 @@ Idempotency-Key: abc-123
 **Endpoint:** `GET /woki/bookings/day`
 
 **Query Parameters:**
+
 ```
 restaurantId=R1
 sectorId=S1
@@ -280,17 +292,17 @@ date=2025-10-22
 
 ```json
 {
-  "date": "2025-10-22",
-  "items": [
-    {
-      "id": "BK_001",
-      "tableIds": ["T4"],
-      "partySize": 5,
-      "start": "2025-10-22T20:00:00-03:00",
-      "end": "2025-10-22T21:30:00-03:00",
-      "status": "CONFIRMED"
-    }
-  ]
+	"date": "2025-10-22",
+	"items": [
+		{
+			"id": "BK_001",
+			"tableIds": ["T4"],
+			"partySize": 5,
+			"start": "2025-10-22T20:00:00-03:00",
+			"end": "2025-10-22T21:30:00-03:00",
+			"status": "CONFIRMED"
+		}
+	]
 }
 ```
 
@@ -299,9 +311,11 @@ date=2025-10-22
 ### 5.4 Optional (Bonus)
 
 **Delete Booking:**
+
 ```http
 DELETE /woki/bookings/:id
 ```
+
 - Response: **204** (free the slot immediately)
 
 ---
@@ -339,92 +353,93 @@ DELETE /woki/bookings/:id
 
 ```json
 {
-  "restaurant": {
-    "id": "R1",
-    "name": "Bistro Central",
-    "timezone": "America/Argentina/Buenos_Aires",
-    "windows": [
-      { "start": "12:00", "end": "16:00" },
-      { "start": "20:00", "end": "23:45" }
-    ],
-    "createdAt": "2025-10-22T00:00:00-03:00",
-    "updatedAt": "2025-10-22T00:00:00-03:00"
-  },
-  "sector": {
-    "id": "S1",
-    "restaurantId": "R1",
-    "name": "Main Hall",
-    "createdAt": "2025-10-22T00:00:00-03:00",
-    "updatedAt": "2025-10-22T00:00:00-03:00"
-  },
-  "tables": [
-    {
-      "id": "T1",
-      "sectorId": "S1",
-      "name": "Table 1",
-      "minSize": 2,
-      "maxSize": 2,
-      "createdAt": "2025-10-22T00:00:00-03:00",
-      "updatedAt": "2025-10-22T00:00:00-03:00"
-    },
-    {
-      "id": "T2",
-      "sectorId": "S1",
-      "name": "Table 2",
-      "minSize": 2,
-      "maxSize": 4,
-      "createdAt": "2025-10-22T00:00:00-03:00",
-      "updatedAt": "2025-10-22T00:00:00-03:00"
-    },
-    {
-      "id": "T3",
-      "sectorId": "S1",
-      "name": "Table 3",
-      "minSize": 2,
-      "maxSize": 4,
-      "createdAt": "2025-10-22T00:00:00-03:00",
-      "updatedAt": "2025-10-22T00:00:00-03:00"
-    },
-    {
-      "id": "T4",
-      "sectorId": "S1",
-      "name": "Table 4",
-      "minSize": 4,
-      "maxSize": 6,
-      "createdAt": "2025-10-22T00:00:00-03:00",
-      "updatedAt": "2025-10-22T00:00:00-03:00"
-    },
-    {
-      "id": "T5",
-      "sectorId": "S1",
-      "name": "Table 5",
-      "minSize": 2,
-      "maxSize": 2,
-      "createdAt": "2025-10-22T00:00:00-03:00",
-      "updatedAt": "2025-10-22T00:00:00-03:00"
-    }
-  ],
-  "bookings": [
-    {
-      "id": "B1",
-      "restaurantId": "R1",
-      "sectorId": "S1",
-      "tableIds": ["T2"],
-      "partySize": 3,
-      "start": "2025-10-22T20:30:00-03:00",
-      "end": "2025-10-22T21:15:00-03:00",
-      "durationMinutes": 45,
-      "status": "CONFIRMED",
-      "createdAt": "2025-10-22T18:00:00-03:00",
-      "updatedAt": "2025-10-22T18:00:00-03:00"
-    }
-  ]
+	"restaurant": {
+		"id": "R1",
+		"name": "Bistro Central",
+		"timezone": "America/Argentina/Buenos_Aires",
+		"windows": [
+			{ "start": "12:00", "end": "16:00" },
+			{ "start": "20:00", "end": "23:45" }
+		],
+		"createdAt": "2025-10-22T00:00:00-03:00",
+		"updatedAt": "2025-10-22T00:00:00-03:00"
+	},
+	"sector": {
+		"id": "S1",
+		"restaurantId": "R1",
+		"name": "Main Hall",
+		"createdAt": "2025-10-22T00:00:00-03:00",
+		"updatedAt": "2025-10-22T00:00:00-03:00"
+	},
+	"tables": [
+		{
+			"id": "T1",
+			"sectorId": "S1",
+			"name": "Table 1",
+			"minSize": 2,
+			"maxSize": 2,
+			"createdAt": "2025-10-22T00:00:00-03:00",
+			"updatedAt": "2025-10-22T00:00:00-03:00"
+		},
+		{
+			"id": "T2",
+			"sectorId": "S1",
+			"name": "Table 2",
+			"minSize": 2,
+			"maxSize": 4,
+			"createdAt": "2025-10-22T00:00:00-03:00",
+			"updatedAt": "2025-10-22T00:00:00-03:00"
+		},
+		{
+			"id": "T3",
+			"sectorId": "S1",
+			"name": "Table 3",
+			"minSize": 2,
+			"maxSize": 4,
+			"createdAt": "2025-10-22T00:00:00-03:00",
+			"updatedAt": "2025-10-22T00:00:00-03:00"
+		},
+		{
+			"id": "T4",
+			"sectorId": "S1",
+			"name": "Table 4",
+			"minSize": 4,
+			"maxSize": 6,
+			"createdAt": "2025-10-22T00:00:00-03:00",
+			"updatedAt": "2025-10-22T00:00:00-03:00"
+		},
+		{
+			"id": "T5",
+			"sectorId": "S1",
+			"name": "Table 5",
+			"minSize": 2,
+			"maxSize": 2,
+			"createdAt": "2025-10-22T00:00:00-03:00",
+			"updatedAt": "2025-10-22T00:00:00-03:00"
+		}
+	],
+	"bookings": [
+		{
+			"id": "B1",
+			"restaurantId": "R1",
+			"sectorId": "S1",
+			"tableIds": ["T2"],
+			"partySize": 3,
+			"start": "2025-10-22T20:30:00-03:00",
+			"end": "2025-10-22T21:15:00-03:00",
+			"durationMinutes": 45,
+			"status": "CONFIRMED",
+			"createdAt": "2025-10-22T18:00:00-03:00",
+			"updatedAt": "2025-10-22T18:00:00-03:00"
+		}
+	]
 }
 ```
 
 ### Usage Example
 
 With this seed, a party of 5 asking for 90′ near 20:00 would typically seat on **T4** if free; otherwise consider combos like:
+
 - `T2 + T3`
 - `T1 + T2 + T3`
 
@@ -445,31 +460,33 @@ Using your combo capacity heuristic.
 
 ### HTTP Standards
 
-| Status | Usage |
-|--------|-------|
-| 200 | Success (GET) |
-| 201 | Created (POST) |
-| 204 | No Content (DELETE) |
-| 400 | Bad Request |
-| 404 | Not Found |
-| 409 | Conflict |
-| 422 | Unprocessable Entity |
+| Status | Usage                |
+| ------ | -------------------- |
+| 200    | Success (GET)        |
+| 201    | Created (POST)       |
+| 204    | No Content (DELETE)  |
+| 400    | Bad Request          |
+| 404    | Not Found            |
+| 409    | Conflict             |
+| 422    | Unprocessable Entity |
 
 **Special Headers:**
+
 - `Idempotency-Key` on `POST /woki/bookings`
 
 ### Observability (Optional)
 
 Log structure:
+
 ```typescript
 {
-  requestId: string;
-  sectorId: string;
-  partySize: number;
-  duration: number;
-  op: string;
-  durationMs: number;
-  outcome: string;
+	requestId: string;
+	sectorId: string;
+	partySize: number;
+	duration: number;
+	op: string;
+	durationMs: number;
+	outcome: string;
 }
 ```
 
@@ -495,12 +512,12 @@ src/
 
 ## 11. Evaluation Criteria
 
-| Category | Weight | Focus |
-|----------|--------|-------|
-| **Correctness** | 50% | Gap discovery, combo intersections, `[start, end)`, deterministic WokiBrain |
-| **Robustness** | 25% | Locking, idempotency, boundary cases |
-| **Code Quality** | 15% | Types, clarity, cohesion, tests |
-| **Developer Experience** | 10% | Easy to run, clear README, simple scripts |
+| Category                 | Weight | Focus                                                                       |
+| ------------------------ | ------ | --------------------------------------------------------------------------- |
+| **Correctness**          | 50%    | Gap discovery, combo intersections, `[start, end)`, deterministic WokiBrain |
+| **Robustness**           | 25%    | Locking, idempotency, boundary cases                                        |
+| **Code Quality**         | 15%    | Types, clarity, cohesion, tests                                             |
+| **Developer Experience** | 10%    | Easy to run, clear README, simple scripts                                   |
 
 ---
 
@@ -509,6 +526,7 @@ src/
 ### B1 — Variable Duration by Party Size
 
 Example rules:
+
 - ≤2 → 75′
 - ≤4 → 90′
 - ≤8 → 120′
@@ -538,6 +556,7 @@ Handle ≥100 tables and ≥1000 bookings/day with predictable latency; justify 
 ### B7 — Property-Based Tests
 
 Generate random day layouts and assert invariants:
+
 - No overlaps
 - Windows respected
 - Determinism
@@ -545,6 +564,7 @@ Generate random day layouts and assert invariants:
 ### B8 — Observability
 
 Minimal `/metrics` counters:
+
 - Created/cancelled/conflicts
 - P95 assignment time
 - Lock contention stats
@@ -560,6 +580,7 @@ Minimal `/metrics` counters:
 ## Summary
 
 **WokiBrain** is a focused booking engine challenge that tests:
+
 - Algorithm design (gap finding, combo intersection)
 - System design (concurrency, idempotency)
 - API design (clean, documented endpoints)
