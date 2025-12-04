@@ -1,0 +1,4 @@
+{
+  "*": "pnpm format",
+  "*.ts": "pnpm lint"
+}

@@ -1,7 +1,7 @@
 {
 	"$schema": "https://json.schemastore.org/prettierrc",
 	"semi": true,
-	"trailingComma": "none",
+	"trailingComma": "es5",
 	"singleQuote": true,
 	"plugins": ["@ianvs/prettier-plugin-sort-imports"],
 	"importOrder": [
