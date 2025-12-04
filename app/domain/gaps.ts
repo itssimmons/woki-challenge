@@ -1,17 +1,7 @@
 import sqlite from "@database/driver/sqlite";
 import backtrack from "@lib/utils/backtracking";
 
-const TABLE_COMBO_LIMIT = 2;
-
-interface DiscoverSettings {
-  restaurantId: ID;
-  sectorId: ID;
-  partySize: number;
-  startDate: ISOTimeStamp;
-  endDate: ISOTimeStamp;
-}
-
-type AuxGap = Extend<Edit<Gap, "kind", string>, { sectorId: ID }>;
+const MAX_OFFSET	= 3;
 
 /**
  * Determines all viable seating options within a given sector and time window.
@@ -90,36 +80,21 @@ export function discover({
   const combos = backtrack(
     partial,
     function reject(path) {
-      // TODO: make combos until they reach the party size instead of limiting by number of tables
-      if (path.length > TABLE_COMBO_LIMIT) return true;
-
-      // avoid duplicates (e.g: [T1, T1])
-      const ids = path.map((g) => g.tableIds).flat();
-      const uniqueIds = new Set(ids);
-      if (ids.length !== uniqueIds.size) return true;
-
-      // avoid backwards combos (e.g: [T1, T2] and [T2, T1])
-      for (let i = 1; i < ids.length; i++) {
-        if (ids[i] <= ids[i - 1]) return true;
-      }
-
-      return false;
+			const maxTotal = path.reduce((sum, g) => sum + g.maxSize, 0);
+			// Prune paths that cannot possibly meet the party size even with a small offset
+			// (e.g., to allow for slight overcapacity)
+      return maxTotal > args.partySize + MAX_OFFSET;
     },
     function accept(path) {
-      if (path.length === 0) return false;
-
       const maxTotal = path.reduce((sum, g) => sum + g.maxSize, 0);
-      const minTotal = path.reduce((sum, g) => sum + g.minSize, 0);
-
-      if (args.partySize < minTotal) return false;
-      return args.partySize <= maxTotal;
+      return maxTotal >= args.partySize;
     },
   );
-
-  // I don't think O(n^2) is a bad idea due to the small number of tables per sector
-  // Either way, I'm gonna use a backtracking algorithm to find all combos
-  // So it is possible to increase the max number of tables in a combo in the future
-  // My real concern are duplicate combos (e.g: [T1, T2] and [T2, T1] or [T1, T1])
+  
+  // I don't think O(n^2) is a bad idea due to the small amount of sets/tables
+  // either way, I'm gonna use a backtracking algorithm to find all possible combos
+  // It is perfect to seek candidates on a set recursively, accepting or rejecting paths
+  // that meet certain criteria.
   return [
     ...full,
     ...combos.map((combo) => ({
@@ -133,3 +108,13 @@ export function discover({
     })),
   ] as Gap[];
 }
+
+interface DiscoverSettings {
+  restaurantId: ID;
+  sectorId: ID;
+  partySize: number;
+  startDate: ISOTimeStamp;
+  endDate: ISOTimeStamp;
+}
+
+type AuxGap = Extend<Edit<Gap, "kind", string>, { sectorId: ID }>;
