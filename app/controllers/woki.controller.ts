@@ -1,41 +1,32 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import z from "zod";
+import { FastifyReply, FastifyRequest } from 'fastify';
+import z from 'zod';
 
-import sqlite from "@database/driver/sqlite";
-import Exception from "@exceptions/index";
-import HttpStatus from "@lib/consts/HttpStatus";
-import RequestValidations from "@validations/request.validations";
-import Clock from "@lib/prototypes/clock";
-import dayjs from "@lib/addons/dayjs";
-import { rank } from "@domain/wokibrain";
-import { discover } from "@domain/gaps";
-import withDefault from "@lib/utils/withDefault";
-import "@lib/prototypes/array";
-import { fa } from "zod/v4/locales";
+import sqlite from '@database/driver/sqlite';
+import { discover } from '@domain/gaps';
+import { rank } from '@domain/wokibrain';
+import Exception from '@exceptions/index';
+import dayjs from '@lib/addons/dayjs';
+import HttpStatus from '@lib/consts/HttpStatus';
+import Clock from '@lib/prototypes/clock';
+import withDefault from '@lib/utils/withDefault';
+import RequestValidations from '@validations/request.validations';
 
-type BookBody = {
-  restaurantId: ID;
-  sectorId: ID;
-  partySize: number;
-  durationMinutes: number;
-  date: string;
-  windowStart: string;
-  windowEnd: string;
-};
+import '@lib/prototypes/array';
 
-type Bookings = {
-  id: ID;
-  tableIds: Array<ID>;
-  partySize: number;
-  start: ISOTimeStamp;
-  end: ISOTimeStamp;
-  status: string;
-};
+// type BookBody = {
+//   restaurantId: ID;
+//   sectorId: ID;
+//   partySize: number;
+//   durationMinutes: number;
+//   date: string;
+//   windowStart: string;
+//   windowEnd: string;
+// };
 
 export default class WokiController {
   public static discover(req: FastifyRequest, reply: FastifyReply) {
     try {
-      let {
+      const {
         restaurantId,
         sectorId,
         date,
@@ -48,11 +39,11 @@ export default class WokiController {
 
       const timeZone = (sqlite
         .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
-        .get(restaurantId)?.timezone || "UTC") as string;
+        .get(restaurantId)?.timezone || 'UTC') as string;
 
       const openHours = sqlite
         .prepare(
-          /*sql*/ `SELECT start, end FROM windows WHERE restaurant_id = ?`,
+          /*sql*/ `SELECT start, end FROM windows WHERE restaurant_id = ?`
         )
         .all(restaurantId)
         .map(Object.values) as unknown as Array<
@@ -84,30 +75,30 @@ export default class WokiController {
 
       const defaultStartTime = withDefault(
         windowStart,
-        defaultWindowStartTime,
+        defaultWindowStartTime
       ) as Clock.Time;
       const defaultEndTime = withDefault(
         windowEnd,
-        defaultWindowEndTime,
+        defaultWindowEndTime
       ) as Clock.Time;
 
       const start = Clock.replaceTime(
-        dayjs(date, "YYYY-MM-DD"),
+        dayjs(date, 'YYYY-MM-DD'),
         defaultStartTime,
-        timeZone,
+        timeZone
       );
       const end = Clock.replaceTime(
-        dayjs(date, "YYYY-MM-DD"),
+        dayjs(date, 'YYYY-MM-DD'),
         defaultEndTime,
-        timeZone,
+        timeZone
       );
 
       const exclude: Array<Tuple<[dayjs.Dayjs, dayjs.Dayjs]>> = closedHours
         // remove leading/trailing nulls
         .slice(1, -1)
         .map(([s, e]) => [
-          Clock.replaceTime(dayjs(date, "YYYY-MM-DD"), s!, timeZone),
-          Clock.replaceTime(dayjs(date, "YYYY-MM-DD"), e!, timeZone),
+          Clock.replaceTime(dayjs(date, 'YYYY-MM-DD'), s!, timeZone),
+          Clock.replaceTime(dayjs(date, 'YYYY-MM-DD'), e!, timeZone),
         ]);
 
       const slots = Clock.slots(duration, {
@@ -139,23 +130,23 @@ export default class WokiController {
       reply.code(200).send({
         slotMinutes: duration,
         durationMinutes: duration,
-        candidates: candidates.limit(limit).sortBy("score", "DESC"),
+        candidates: candidates.limit(limit).sortBy('score', 'DESC'),
       });
     } catch (e) {
       if (e instanceof z.ZodError) {
         reply.code(HttpStatus.BadRequest).send({
-          error: "bad_request",
+          error: 'bad_request',
           detail: e.issues,
         });
       } else if (e instanceof Exception.OutOfWindow) {
         reply.code(HttpStatus.UnprocessableEntity).send({
-          error: "outside_service_window",
-          detail: "Window does not intersect service hours",
+          error: 'outside_service_window',
+          detail: 'Window does not intersect service hours',
         });
       } else if (e instanceof Exception.NoCapacity) {
         reply.code(HttpStatus.Conflict).send({
-          error: "no_capacity",
-          detail: "No single or combo gap fits duration within window",
+          error: 'no_capacity',
+          detail: 'No single or combo gap fits duration within window',
         });
       } else {
         // Unexpected error
@@ -166,38 +157,38 @@ export default class WokiController {
   }
 
   public static book(req: FastifyRequest, reply: FastifyReply) {
-    const {
-      restaurantId,
-      sectorId,
-      partySize,
-      durationMinutes,
-      date,
-      windowStart,
-      windowEnd,
-    } = req.body as BookBody;
+    // const {
+    //   restaurantId,
+    //   sectorId,
+    //   partySize,
+    //   durationMinutes,
+    //   date,
+    //   windowStart,
+    //   windowEnd,
+    // } = req.body as BookBody;
 
-    const IdempotencyKey = req.headers["Idempotency-Key"] as string | undefined;
+    // const IdempotencyKey = req.headers['Idempotency-Key'] as string | undefined;
 
     try {
       // acquire lock here
       reply.code(201).send({
-        id: "BK_001",
-        restaurantId: "R1",
-        sectorId: "S1",
-        tableIds: ["T4"],
+        id: 'BK_001',
+        restaurantId: 'R1',
+        sectorId: 'S1',
+        tableIds: ['T4'],
         partySize: 5,
-        start: "2025-10-22T20:00:00-03:00",
-        end: "2025-10-22T21:30:00-03:00",
+        start: '2025-10-22T20:00:00-03:00',
+        end: '2025-10-22T21:30:00-03:00',
         durationMinutes: 90,
-        status: "CONFIRMED",
-        createdAt: "2025-10-22T19:50:21-03:00",
-        updatedAt: "2025-10-22T19:50:21-03:00",
+        status: 'CONFIRMED',
+        createdAt: '2025-10-22T19:50:21-03:00',
+        updatedAt: '2025-10-22T19:50:21-03:00',
       });
     } catch (e) {
       if (e instanceof Exception.NoCapacity) {
         reply.code(409).send({
-          error: "no_capacity",
-          detail: "No single or combo gap fits duration within window",
+          error: 'no_capacity',
+          detail: 'No single or combo gap fits duration within window',
         });
       } else {
         // Unexpected error
@@ -232,14 +223,14 @@ export default class WokiController {
 
       const bookings = stmt.all({ restaurantId, sectorId, date }).map((b) => ({
         ...b,
-        tableIds: (b.tableIds as string).split(","),
+        tableIds: (b.tableIds as string).split(','),
       })) as Array<Bookings>;
 
       reply.code(HttpStatus.Ok).send({ date, items: bookings });
     } catch (e) {
       if (e instanceof z.ZodError) {
         reply.code(HttpStatus.BadRequest).send({
-          error: "bad_request",
+          error: 'bad_request',
           detail: e.issues,
         });
       } else {
@@ -271,7 +262,7 @@ export default class WokiController {
         reply.code(HttpStatus.NotFound).send();
       } else if (e instanceof z.ZodError) {
         reply.code(HttpStatus.BadRequest).send({
-          error: "bad_request",
+          error: 'bad_request',
           detail: e.issues,
         });
       } else {

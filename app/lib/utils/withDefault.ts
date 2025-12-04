@@ -1,11 +1,11 @@
 export default function withDefault<T extends number | boolean | string>(
   base: T | Falsy,
-  defaults: T,
+  defaults: T
 ): T;
 export default function withDefault<T extends number | boolean | string, K>(
   base: T | Falsy,
   defaults: T,
-  transformer: (value: T) => K,
+  transformer: (value: T) => K
 ): K;
 /**
  * Returns the base value if it's truthy; otherwise, returns the default value.
@@ -18,7 +18,7 @@ export default function withDefault<T extends number | boolean | string, K>(
 export default function withDefault<T extends number | boolean | string, K>(
   base: T | Falsy,
   defaults: T,
-  transformer?: (value: T) => K,
+  transformer?: (value: T) => K
 ): T | K {
   const finalValue = base || defaults;
   return transformer ? transformer(finalValue) : finalValue;

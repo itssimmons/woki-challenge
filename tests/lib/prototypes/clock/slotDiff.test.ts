@@ -1,23 +1,23 @@
-import Clock from "@lib/prototypes/clock";
+import Clock from '@lib/prototypes/clock';
 
-describe("Clock.slotDiff tests", () => {
-  it("Should returns a slot difference of size 4, 1 hour range each", () => {
+describe('Clock.slotDiff tests', () => {
+  it('Should returns a slot difference of size 4, 1 hour range each', () => {
     const diff = Clock.slotDiff([
-      ["09:00", "12:00"],
-      ["13:00", "15:00"],
-      ["16:00", "19:00"],
+      ['09:00', '12:00'],
+      ['13:00', '15:00'],
+      ['16:00', '19:00'],
     ]);
 
     expect(diff.length).toEqual(4);
     expect(diff).toEqual([
-      [null, "09:00"],
-      ["12:00", "13:00"],
-      ["15:00", "16:00"],
-      ["19:00", null],
+      [null, '09:00'],
+      ['12:00', '13:00'],
+      ['15:00', '16:00'],
+      ['19:00', null],
     ]);
   });
 
-  it("Should calculate around 100 slot diffs, 5 min each", () => {
+  it('Should calculate around 100 slot diffs, 5 min each', () => {
     const slots: Array<Tuple<[Clock.Time, Clock.Time]>> = [];
 
     let hour = 8;
@@ -36,8 +36,8 @@ describe("Clock.slotDiff tests", () => {
         endMinute = endMinute % 60;
       }
 
-      const start = `${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}`;
-      const end = `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+      const start = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+      const end = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
 
       slots.push([start as Clock.Time, end as Clock.Time]);
 
@@ -54,14 +54,14 @@ describe("Clock.slotDiff tests", () => {
     const diff = Clock.slotDiff(slots);
 
     expect(diff.length).toEqual(101);
-    expect(diff[0]).toEqual([null, "08:00"]);
-    expect(diff[25]).toEqual(["12:05", "12:10"]);
-    expect(diff[50]).toEqual(["16:15", "16:20"]);
-    expect(diff[75]).toEqual(["20:25", "20:30"]);
-    expect(diff[100]).toEqual(["24:35", null]);
+    expect(diff[0]).toEqual([null, '08:00']);
+    expect(diff[25]).toEqual(['12:05', '12:10']);
+    expect(diff[50]).toEqual(['16:15', '16:20']);
+    expect(diff[75]).toEqual(['20:25', '20:30']);
+    expect(diff[100]).toEqual(['24:35', null]);
   });
 
-  it("Should handle empty slots array", () => {
+  it('Should handle empty slots array', () => {
     const diff = Clock.slotDiff([]);
     expect(diff.length).toEqual(1);
     expect(diff[0]).toEqual([null, null]);

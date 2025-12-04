@@ -7,3 +7,12 @@ interface Table {
   created_at: ISOTimeStamp;
   updated_at: ISOTimeStamp;
 }
+
+type Bookings = {
+  id: ID;
+  tableIds: Array<ID>;
+  partySize: number;
+  start: ISOTimeStamp;
+  end: ISOTimeStamp;
+  status: string;
+};

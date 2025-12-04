@@ -1,4 +1,6 @@
 {
-  "*": "pnpm format",
-  "*.ts": "pnpm lint"
+  "*.ts": [
+		"npm run format",
+		"npm run lint"
+	]
 }

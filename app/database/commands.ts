@@ -1,12 +1,13 @@
 #!/usr/bin/env node
-import path from "node:path";
-import fs from "node:fs/promises";
-import chalk from "chalk";
-import { fileURLToPath } from "node:url";
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import chalk from 'chalk';
 
-import sqlite from "@database/driver/sqlite";
-import * as cli from "../../packages/cli";
-import env from "@config/env";
+import env from '@config/env';
+import sqlite from '@database/driver/sqlite';
+
+import * as cli from '../../packages/cli';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,53 +18,50 @@ namespace DB {
   export async function wipe() {
     log();
     try {
-      await fs.writeFile(env("DB_MEMORY_PATH", ":memory:"), "", {
-        encoding: "utf-8",
+      await fs.writeFile(env('DB_MEMORY_PATH', ':memory:'), '', {
+        encoding: 'utf-8',
       });
 
-      cli.indexPrint("Wiped in", chalk.green("0ms"), {
-        character: chalk.gray(".") as ".",
+      cli.indexPrint('Wiped in', chalk.green('0ms'), {
+        character: chalk.gray('.') as '.',
       });
     } catch {
-      cli.indexPrint("Wipe failed", chalk.red("0ms"), {
-        character: chalk.gray(".") as ".",
+      cli.indexPrint('Wipe failed', chalk.red('0ms'), {
+        character: chalk.gray('.') as '.',
       });
     }
   }
 
   export async function runQueryFolder(
-    kind: "migrations" | "seeders" = "migrations",
+    kind: 'migrations' | 'seeders' = 'migrations'
   ) {
-    return new Promise<void>(async (resolve) => {
-      const label = kind.slice(0, -1).toUpperCase();
+    const label = kind.slice(0, -1).toUpperCase();
 
-      log();
-      cli.indexPrint(chalk.grey(label), chalk.gray("STATUS"), {
-        character: chalk.gray(".") as ".",
-      });
-
-      for await (const entry of fs.glob(`${__dirname}/${kind}/*.sql`)) {
-        const { name: filename } = path.parse(entry);
-
-        try {
-          const rawQuery = await fs.readFile(entry, { encoding: "utf-8" });
-          sqlite.exec(rawQuery);
-
-          cli.indexPrint(`${filename}.sql`, chalk.green("Ran"), {
-            character: chalk.gray(".") as ".",
-          });
-        } catch (e) {
-          cli.indexPrint(`${filename}.sql`, chalk.red("Failed"), {
-            character: chalk.gray(".") as ".",
-          });
-          log(`\n  ${e}\n`);
-          break;
-        }
-      }
-
-      log();
-      resolve();
+    log();
+    cli.indexPrint(chalk.grey(label), chalk.gray('STATUS'), {
+      character: chalk.gray('.') as '.',
     });
+
+    for await (const entry of fs.glob(`${__dirname}/${kind}/*.sql`)) {
+      const { name: filename } = path.parse(entry);
+
+      try {
+        const rawQuery = await fs.readFile(entry, { encoding: 'utf-8' });
+        sqlite.exec(rawQuery);
+
+        cli.indexPrint(`${filename}.sql`, chalk.green('Ran'), {
+          character: chalk.gray('.') as '.',
+        });
+      } catch (e) {
+        cli.indexPrint(`${filename}.sql`, chalk.red('Failed'), {
+          character: chalk.gray('.') as '.',
+        });
+        log(`\n  ${e}\n`);
+        break;
+      }
+    }
+
+    log();
   }
 }
 
@@ -73,16 +71,16 @@ namespace DB {
   for (const s of args) {
     switch (true) {
       case /^(--migrate)$/.test(s):
-        await DB.runQueryFolder("migrations");
+        await DB.runQueryFolder('migrations');
         break;
       case /^(--seed)$/.test(s):
-        await DB.runQueryFolder("seeders");
+        await DB.runQueryFolder('seeders');
         break;
       case /^(--wipe)$/.test(s):
         await DB.wipe();
         break;
       default:
-        log("Unhandled flag, please try with a valid one.");
+        log('Unhandled flag, please try with a valid one.');
         break;
     }
   }

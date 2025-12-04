@@ -1,15 +1,15 @@
-import "@bootstrap/boot";
+import '@bootstrap/boot';
 
-import build from "./app";
-import env from "./config/env";
-import logging from "./config/logging";
+import build from './app';
+import env from './config/env';
+import logging from './config/logging';
 
 const f = build({
-  logger: logging[env("NODE_ENV", "development")],
+  logger: logging[env('NODE_ENV', 'development')],
 });
 
-f.addHook("preHandler", (_, reply, done) => {
-  reply.header("x-now", String(performance.now()));
+f.addHook('preHandler', (_, reply, done) => {
+  reply.header('x-now', String(performance.now()));
   done();
 });
 

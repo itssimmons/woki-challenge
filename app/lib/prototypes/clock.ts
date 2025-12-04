@@ -1,6 +1,4 @@
-import dayjs from "@lib/addons/dayjs";
-import { diff } from "node:util";
-import { includes } from "zod";
+import dayjs from '@lib/addons/dayjs';
 
 namespace Clock {
   // 00 - 23
@@ -28,13 +26,13 @@ namespace Clock {
   export function slots(
     of: number,
     {
-      tz = "UTC",
+      tz = 'UTC',
       ...options
     }: {
       include: Tuple<[dayjs.Dayjs, dayjs.Dayjs]>;
       exclude?: Array<Tuple<[dayjs.Dayjs, dayjs.Dayjs]>>;
       tz?: string;
-    },
+    }
   ): Array<Tuple<[ISOTimeStamp, ISOTimeStamp]>> {
     const [start, end] = options.include;
 
@@ -43,7 +41,7 @@ namespace Clock {
 
     while (true) {
       const slotStart = current.clone();
-      const slotEnd = current.add(of, "minute");
+      const slotEnd = current.add(of, 'minute');
       let skip = false;
 
       if (options.exclude) {
@@ -68,9 +66,9 @@ namespace Clock {
   export function replaceTime(
     base: dayjs.Dayjs,
     time: Clock.Time,
-    tz: string = "UTC",
+    tz: string = 'UTC'
   ): dayjs.Dayjs {
-    const [hours, minutes] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(':').map(Number);
     return base
       .clone()
       .tz(tz)
@@ -81,17 +79,17 @@ namespace Clock {
   }
 
   export function offset(iana: string) {
-    return dayjs().tz(iana).format("Z");
+    return dayjs().tz(iana).format('Z');
   }
 
   export function slotDiff(
-    slots: Array<Tuple<[Clock.Time, Clock.Time]>>,
+    slots: Array<Tuple<[Clock.Time, Clock.Time]>>
   ): Array<Tuple<[Clock.Time | null, Clock.Time | null]>> {
     if (slots.length === 0) return [[null, null]];
 
     const diffs: Array<[Clock.Time | null, Clock.Time | null]> = Array.from(
       { length: slots.length + 1 },
-      () => [null, null],
+      () => [null, null]
     );
 
     diffs[0][1] = slots[0][0] as Clock.Time;

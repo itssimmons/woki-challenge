@@ -1,4 +1,4 @@
-type GapKind = "combo" | "single";
+type GapKind = 'combo' | 'single';
 
 interface Gap {
   kind: GapKind;

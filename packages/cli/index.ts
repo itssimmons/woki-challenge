@@ -1,6 +1,6 @@
 const log = console.log.bind(console);
 
-type SpecialChars = "." | "*" | "_" | "-" | " ";
+type SpecialChars = '.' | '*' | '_' | '-' | ' ';
 
 type Important<T> = {
   [K in keyof T]-?: T[K] extends object ? Important<T[K]> : NonNullable<T[K]>;
@@ -17,7 +17,7 @@ interface IndexPrintOptions {
 }
 
 const defaultValue: IndexPrintOptions = {
-  character: ".",
+  character: '.',
   padding: {
     outside: 2,
     inner: 1,
@@ -62,7 +62,7 @@ function withDefaults<T>(defaults: T, provided: Partial<T>): Important<T> {
 export const indexPrint = (
   label: string,
   value: string,
-  opts: Partial<IndexPrintOptions> = defaultValue,
+  opts: Partial<IndexPrintOptions> = defaultValue
 ) => {
   const options = withDefaults(defaultValue, opts);
   const terminalWidth = process.stdout.columns || 160;
@@ -74,16 +74,16 @@ export const indexPrint = (
         label.length -
         value.length -
         options.padding.outside * 2 -
-        options.padding.inner * 2,
-    ),
+        options.padding.inner * 2
+    )
   );
   log(
-    " ".repeat(options.padding.outside) +
+    ' '.repeat(options.padding.outside) +
       label +
-      " ".repeat(options.padding.inner) +
+      ' '.repeat(options.padding.inner) +
       dots +
-      " ".repeat(options.padding.inner) +
+      ' '.repeat(options.padding.inner) +
       value +
-      " ".repeat(options.padding.inner),
+      ' '.repeat(options.padding.inner)
   );
 };

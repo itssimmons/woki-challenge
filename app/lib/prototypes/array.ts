@@ -2,7 +2,7 @@ export {};
 
 declare global {
   interface Array<T> {
-    sortBy(key: keyof T, dir?: "ASC" | "DESC"): T[];
+    sortBy(key: keyof T, dir?: 'ASC' | 'DESC'): T[];
     limit(count: number): T[];
   }
 }
@@ -10,7 +10,7 @@ declare global {
 Array.prototype.sortBy = function <T, K extends keyof T>(
   this: T[],
   key: K,
-  dir: "ASC" | "DESC" = "ASC",
+  dir: 'ASC' | 'DESC' = 'ASC'
 ): T[] {
   return this.sort((a, b) => {
     const first = a[key];
@@ -18,7 +18,7 @@ Array.prototype.sortBy = function <T, K extends keyof T>(
 
     if (first === second) return 0;
 
-    if (dir === "ASC") {
+    if (dir === 'ASC') {
       return first < second ? -1 : 1;
     } else {
       return first > second ? -1 : 1;

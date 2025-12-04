@@ -1,7 +1,7 @@
-import sqlite from "@database/driver/sqlite";
-import backtrack from "@lib/utils/backtracking";
+import sqlite from '@database/driver/sqlite';
+import backtrack from '@lib/utils/backtracking';
 
-const MAX_OFFSET	= 3;
+const MAX_OFFSET = 3;
 
 /**
  * Determines all viable seating options within a given sector and time window.
@@ -57,7 +57,7 @@ export function discover({
   }) as unknown as Table[];
 
   const singles: AuxGap[] = tables.map((table) => ({
-    kind: "single",
+    kind: 'single',
     tableIds: [table.id],
     sectorId: table.sector_id,
     maxSize: table.max_size,
@@ -80,17 +80,17 @@ export function discover({
   const combos = backtrack(
     partial,
     function reject(path) {
-			const maxTotal = path.reduce((sum, g) => sum + g.maxSize, 0);
-			// Prune paths that cannot possibly meet the party size even with a small offset
-			// (e.g., to allow for slight overcapacity)
+      const maxTotal = path.reduce((sum, g) => sum + g.maxSize, 0);
+      // Prune paths that cannot possibly meet the party size even with a small offset
+      // (e.g., to allow for slight overcapacity)
       return maxTotal > args.partySize + MAX_OFFSET;
     },
     function accept(path) {
       const maxTotal = path.reduce((sum, g) => sum + g.maxSize, 0);
       return maxTotal >= args.partySize;
-    },
+    }
   );
-  
+
   // I don't think O(n^2) is a bad idea due to the small amount of sets/tables
   // either way, I'm gonna use a backtracking algorithm to find all possible combos
   // It is perfect to seek candidates on a set recursively, accepting or rejecting paths
@@ -98,7 +98,7 @@ export function discover({
   return [
     ...full,
     ...combos.map((combo) => ({
-      kind: "combo",
+      kind: 'combo',
       tableIds: combo.map((g) => g.tableIds).flat(),
       sectorId: combo[0].sectorId,
       maxSize: combo.reduce((sum, g) => sum + g.maxSize, 0),
@@ -117,4 +117,4 @@ interface DiscoverSettings {
   endDate: ISOTimeStamp;
 }
 
-type AuxGap = Extend<Edit<Gap, "kind", string>, { sectorId: ID }>;
+type AuxGap = Join<Edit<Gap, 'kind', string>, { sectorId: ID }>;

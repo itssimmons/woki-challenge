@@ -1,28 +1,29 @@
-jest.unmock("@database/driver/sqlite");
+import fs from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
 
-import { DatabaseSync } from "node:sqlite";
-import fs from "node:fs/promises";
+import sqlite from '@database/driver/sqlite';
 
-import sqlite from "@database/driver/sqlite";
-import build from "../../app/app";
+import build from '../../app/app';
 
-describe("GET /1/woki/bookigns/day", () => {
+jest.unmock('@database/driver/sqlite');
+
+describe('GET /1/woki/bookigns/day', () => {
   let mem: DatabaseSync;
 
   beforeEach(async () => {
-    mem = new DatabaseSync(":memory:");
+    mem = new DatabaseSync(':memory:');
 
     for await (const sql of fs.glob(
-      `${__dirname}/../../app/database/migrations/*.sql`,
+      `${__dirname}/../../app/database/migrations/*.sql`
     )) {
-      const rawQuery = await fs.readFile(sql, { encoding: "utf-8" });
+      const rawQuery = await fs.readFile(sql, { encoding: 'utf-8' });
       mem.exec(rawQuery);
     }
 
     for await (const sql of fs.glob(
-      `${__dirname}/../../app/database/seeders/*.sql`,
+      `${__dirname}/../../app/database/seeders/*.sql`
     )) {
-      const rawQuery = await fs.readFile(sql, { encoding: "utf-8" });
+      const rawQuery = await fs.readFile(sql, { encoding: 'utf-8' });
       mem.exec(rawQuery);
     }
 
@@ -34,7 +35,7 @@ describe("GET /1/woki/bookigns/day", () => {
     mem.close();
   });
 
-  it("Should return bookings for a given day", async () => {
+  it('Should return bookings for a given day', async () => {
     const app = build();
 
     mem.exec(/* sql */ `
@@ -49,29 +50,29 @@ describe("GET /1/woki/bookigns/day", () => {
 
     sqlite.inject(mem);
     const response = await app.inject({
-      method: "GET",
-      url: "/1/woki/bookings/day",
+      method: 'GET',
+      url: '/1/woki/bookings/day',
       query: {
-        restaurantId: "R1",
-        sectorId: "S1",
-        date: "2025-10-22",
+        restaurantId: 'R1',
+        sectorId: 'S1',
+        date: '2025-10-22',
       },
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.headers["content-type"]).toBe(
-      "application/json; charset=utf-8",
+    expect(response.headers['content-type']).toBe(
+      'application/json; charset=utf-8'
     );
     expect(response.json()).toEqual({
-      date: "2025-10-22",
+      date: '2025-10-22',
       items: [
         {
-          id: "BK_001",
-          tableIds: ["T2"],
+          id: 'BK_001',
+          tableIds: ['T2'],
           partySize: 3,
-          start: "2025-10-22T20:30:00-03:00",
-          end: "2025-10-22T21:15:00-03:00",
-          status: "CONFIRMED",
+          start: '2025-10-22T20:30:00-03:00',
+          end: '2025-10-22T21:15:00-03:00',
+          status: 'CONFIRMED',
         },
       ],
     });
@@ -82,53 +83,53 @@ describe("GET /1/woki/bookigns/day", () => {
 
     sqlite.inject(mem);
     const response = await app.inject({
-      method: "GET",
-      url: "/1/woki/bookings/day",
+      method: 'GET',
+      url: '/1/woki/bookings/day',
       query: {
-        restaurantId: "R1",
-        sectorId: "S1",
-        date: "2025-10-22",
+        restaurantId: 'R1',
+        sectorId: 'S1',
+        date: '2025-10-22',
       },
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.headers["content-type"]).toBe(
-      "application/json; charset=utf-8",
+    expect(response.headers['content-type']).toBe(
+      'application/json; charset=utf-8'
     );
     expect(response.json()).toEqual({
-      date: "2025-10-22",
+      date: '2025-10-22',
       items: [],
     });
   });
 
-  it("Should throw an exception due to date type mismatch", async () => {
+  it('Should throw an exception due to date type mismatch', async () => {
     const app = build();
 
     sqlite.inject(mem);
     const response = await app.inject({
-      method: "GET",
-      url: "/1/woki/bookings/day",
+      method: 'GET',
+      url: '/1/woki/bookings/day',
       query: {
-        restaurantId: "R1",
-        sectorId: "S1",
-        date: "20251022",
+        restaurantId: 'R1',
+        sectorId: 'S1',
+        date: '20251022',
       },
     });
 
     expect(response.statusCode).toBe(400);
-    expect(response.headers["content-type"]).toBe(
-      "application/json; charset=utf-8",
+    expect(response.headers['content-type']).toBe(
+      'application/json; charset=utf-8'
     );
     expect(response.json()).toEqual(
       expect.objectContaining({
-        error: "bad_request",
+        error: 'bad_request',
         detail: expect.arrayContaining([
           expect.objectContaining({
-            code: "invalid_format",
-            message: expect.stringContaining("Invalid date format"),
+            code: 'invalid_format',
+            message: expect.stringContaining('Invalid date format'),
           }),
         ]),
-      }),
+      })
     );
   });
 });

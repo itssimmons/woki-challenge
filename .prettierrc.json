@@ -9,7 +9,16 @@
 		"<THIRD_PARTY_MODULES>",
 		"",
 		"<TYPES>",
+		"^@bootstrap/(.*)$",
+		"^@config/(.*)$",
+		"^@controllers/(.*)$",
+		"^@database/(.*)$",
+		"^@domain/(.*)$",
+		"^@exceptions/(.*)$",
+		"^@lib/(.*)$",
+		"^@routes/(.*)$",
+		"^@validations/(.*)$",
+		"",
 		"^[.]"
-	],
-	"importOrderSeparation": true
+	]
 }
