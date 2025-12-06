@@ -449,11 +449,19 @@ export default class WokiController {
         throw new Exception.NotFound();
       }
 
-      const stmt = sqlite.prepare(/*sql*/ `DELETE FROM bookings WHERE id = ?`);
+      sqlite.exec('BEGIN;');
+      const stmt = sqlite.prepare(
+        /*sql*/
+        `UPDATE bookings
+       SET status = 'CANCELLED', updated_at = DATETIME('now')
+       WHERE id = ?`
+      );
       stmt.run(id);
+      sqlite.exec('COMMIT;');
 
       reply.code(HttpStatus.NoContent).send();
     } catch (e) {
+      sqlite.exec('ROLLBACK;');
       if (e instanceof Exception.NotFound) {
         reply.code(HttpStatus.NotFound).send();
       } else if (e instanceof z.ZodError) {

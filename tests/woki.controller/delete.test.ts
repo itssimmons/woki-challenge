@@ -6,6 +6,7 @@ jest.mock('@database/driver/sqlite', () => ({
   __esModule: true,
   default: {
     prepare: jest.fn(),
+    exec: jest.fn(),
   },
 }));
 
@@ -22,7 +23,7 @@ describe('DELETE /1/woki/bookings/:id', () => {
 
     const mockPrepare = (sqlite.prepare as jest.Mock)
       .mockImplementationOnce(() => ({ get: mockGet })) // SELECT 1...
-      .mockImplementationOnce(() => ({ run: mockRun })); // DELETE ...
+      .mockImplementationOnce(() => ({ run: mockRun })); // UPDATE ...
 
     const bookingId = 'BK_001';
     const response = await app.inject({
@@ -35,13 +36,13 @@ describe('DELETE /1/woki/bookings/:id', () => {
       `SELECT 1 FROM bookings WHERE id = ?`
     );
     expect(mockGet).toHaveBeenCalledWith(bookingId);
-
     expect(mockPrepare).toHaveBeenNthCalledWith(
       2,
-      `DELETE FROM bookings WHERE id = ?`
+      `UPDATE bookings
+       SET status = 'CANCELLED', updated_at = DATETIME('now')
+       WHERE id = ?`
     );
     expect(mockRun).toHaveBeenCalledWith(bookingId);
-
     expect(response.statusCode).toStrictEqual(204);
   });
 
@@ -63,7 +64,6 @@ describe('DELETE /1/woki/bookings/:id', () => {
       `SELECT 1 FROM bookings WHERE id = ?`
     );
     expect(mockGet).toHaveBeenCalledWith(bookingId);
-
     expect(response.statusCode).toStrictEqual(404);
   });
 });
