@@ -26,4 +26,24 @@ const sqlite = new Proxy(ref, {
   },
 }) as unknown as Join<DatabaseSync, { inject: (poison: DatabaseSync) => void }>;
 
+export function withTransaction() {
+  let began = false;
+  return {
+    begin() {
+      if (!began) {
+        sqlite.exec('BEGIN;');
+      }
+    },
+    commit() {
+      sqlite.exec('COMMIT;');
+    },
+    rollback() {
+      if (began) {
+        sqlite.exec('ROLLBACK;');
+        began = false;
+      }
+    },
+  };
+}
+
 export default sqlite;

@@ -3,7 +3,7 @@ import z from 'zod';
 
 import type { ScoredGap } from '../core/wokibrain';
 import { createClient as createRedisClient } from '@database/driver/redis';
-import sqlite from '@database/driver/sqlite';
+import sqlite, { withTransaction } from '@database/driver/sqlite';
 import Exception from '@exceptions/index';
 import dayjs from '@lib/addons/dayjs';
 import HttpStatus from '@lib/consts/HttpStatus';
@@ -161,6 +161,7 @@ export default class {
 
   public static async book(req: FastifyRequest, reply: FastifyReply) {
     const idempotencyKey = req.headers['idempotency-key'];
+    const t = withTransaction();
 
     try {
       const {
@@ -289,7 +290,7 @@ export default class {
         )
         .get() as { count: number };
 
-      sqlite.exec('BEGIN;');
+      t.begin();
       const stmt1 = sqlite.prepare(/*sql*/ `
 	      INSERT INTO bookings (
 	        id,
@@ -344,7 +345,8 @@ export default class {
           Promise.resolve(stmpt2.run({ bookingId: newId, tableId }))
         )
       );
-      sqlite.exec('COMMIT;');
+
+      t.commit();
 
       const response = {
         ...booking,
@@ -365,7 +367,7 @@ export default class {
 
       reply.code(201).send(response);
     } catch (e) {
-      sqlite.exec('ROLLBACK;');
+      t.rollback();
       if (e instanceof z.ZodError) {
         reply.code(400).send({
           error: 'bad_request',
@@ -452,6 +454,7 @@ export default class {
   }
 
   public static cancel(req: FastifyRequest, reply: FastifyReply) {
+    const t = withTransaction();
     try {
       const { id } = WokiSchema.Cancel.parse(req.params);
 
@@ -463,7 +466,7 @@ export default class {
         throw new Exception.NotFound();
       }
 
-      sqlite.exec('BEGIN;');
+      t.begin();
       const stmt = sqlite.prepare(
         /*sql*/
         `UPDATE bookings
@@ -471,11 +474,11 @@ export default class {
        WHERE id = ?`
       );
       stmt.run(id);
-      sqlite.exec('COMMIT;');
+      t.commit();
 
       reply.code(HttpStatus.NoContent).send();
     } catch (e) {
-      sqlite.exec('ROLLBACK;');
+      t.rollback();
       if (e instanceof Exception.NotFound) {
         reply.code(HttpStatus.NotFound).send();
       } else if (e instanceof z.ZodError) {

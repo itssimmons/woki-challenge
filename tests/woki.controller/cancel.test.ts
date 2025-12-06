@@ -1,20 +1,31 @@
+import { FastifyInstance } from 'fastify';
+
 import sqlite from '@database/driver/sqlite';
 
 import build from '../../app/app';
 
-jest.mock('@database/driver/sqlite', () => ({
-  __esModule: true,
-  default: {
-    prepare: jest.fn(),
-    exec: jest.fn(),
-  },
-}));
+jest.mock('@database/driver/sqlite', () => {
+  const original = jest.requireActual('@database/driver/sqlite');
+  return {
+    __esModule: true,
+    ...original,
+    default: {
+      prepare: jest.fn(),
+      exec: jest.fn(),
+    },
+  };
+});
 
 describe('DELETE /1/woki/bookings/:id', () => {
-  const app = build();
+  let server: FastifyInstance;
 
   beforeEach(() => {
+    server = build();
     jest.resetAllMocks();
+  });
+
+  afterEach(async () => {
+    await server.close();
   });
 
   it('Should cancel at least 1 booking', async () => {
@@ -26,7 +37,7 @@ describe('DELETE /1/woki/bookings/:id', () => {
       .mockImplementationOnce(() => ({ run: mockRun })); // UPDATE ...
 
     const bookingId = 'BK_001';
-    const response = await app.inject({
+    const response = await server.inject({
       method: 'DELETE',
       url: `/1/woki/bookings/${bookingId}`,
     });
@@ -54,7 +65,7 @@ describe('DELETE /1/woki/bookings/:id', () => {
     ); // SELECT 1...
 
     const bookingId = 'BK_09X';
-    const response = await app.inject({
+    const response = await server.inject({
       method: 'DELETE',
       url: `/1/woki/bookings/${bookingId}`,
     });

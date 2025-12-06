@@ -8,7 +8,7 @@ describe('Clock.slotDiff tests', () => {
       ['16:00', '19:00'],
     ]);
 
-    expect(diff.length).toEqual(4);
+    expect(diff).toHaveLength(4);
     expect(diff).toEqual([
       [null, '09:00'],
       ['12:00', '13:00'],
@@ -53,7 +53,7 @@ describe('Clock.slotDiff tests', () => {
 
     const diff = Clock.slotDiff(slots);
 
-    expect(diff.length).toEqual(101);
+    expect(diff).toHaveLength(101);
     expect(diff[0]).toEqual([null, '08:00']);
     expect(diff[25]).toEqual(['12:05', '12:10']);
     expect(diff[50]).toEqual(['16:15', '16:20']);
@@ -63,7 +63,7 @@ describe('Clock.slotDiff tests', () => {
 
   it('Should handle empty slots array', () => {
     const diff = Clock.slotDiff([]);
-    expect(diff.length).toEqual(1);
+    expect(diff).toHaveLength(1);
     expect(diff[0]).toEqual([null, null]);
   });
 });

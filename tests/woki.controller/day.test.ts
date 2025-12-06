@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { DatabaseSync } from 'node:sqlite';
+import { type FastifyInstance } from 'fastify';
 
 import sqlite from '@database/driver/sqlite';
 
@@ -9,8 +10,10 @@ jest.unmock('@database/driver/sqlite');
 
 describe('GET /1/woki/bookigns/day', () => {
   let mem: DatabaseSync;
+  let server: FastifyInstance;
 
   beforeEach(async () => {
+    server = build();
     mem = new DatabaseSync(':memory:');
 
     for await (const sql of fs.glob(
@@ -31,25 +34,23 @@ describe('GET /1/woki/bookigns/day', () => {
     // booked_tables will be cleaned up by foreign key constraint
   });
 
-  afterEach(() => {
-    mem.close();
+  afterEach(async () => {
+    await Promise.all([server.close(), mem.close()]);
   });
 
   it('Should return bookings for a given day', async () => {
-    const app = build();
-
     mem.exec(/* sql */ `
 			INSERT INTO bookings
 				( id, restaurant_id, sector_id, party_size, start, end, duration_minutes, status, created_at, updated_at ) VALUES
 				( 'BK_001', 'R1', 'S1', 3,
-					'2025-10-22T20:30:00-03:00', '2025-10-22T21:15:00-03:00', 45, 'CONFIRMED',
-					'2025-10-22T18:00:00-03:00', '2025-10-22T18:00:00-03:00' );
+					'2025-10-22 23:30:00', '2025-10-23 00:15:00', 45, 'CONFIRMED',
+					'2025-10-22 21:00:00', '2025-10-22 21:00:00' );
 
 			INSERT INTO booked_tables VALUES ( 'BK_001', 'T2' );
 		`);
 
     sqlite.inject(mem);
-    const response = await app.inject({
+    const response = await server.inject({
       method: 'GET',
       url: '/1/woki/bookings/day',
       query: {
@@ -79,10 +80,8 @@ describe('GET /1/woki/bookigns/day', () => {
   });
 
   it("Shouldn't find any bookings available", async () => {
-    const app = build();
-
     sqlite.inject(mem);
-    const response = await app.inject({
+    const response = await server.inject({
       method: 'GET',
       url: '/1/woki/bookings/day',
       query: {
@@ -103,10 +102,8 @@ describe('GET /1/woki/bookigns/day', () => {
   });
 
   it('Should throw an exception due to date type mismatch', async () => {
-    const app = build();
-
     sqlite.inject(mem);
-    const response = await app.inject({
+    const response = await server.inject({
       method: 'GET',
       url: '/1/woki/bookings/day',
       query: {

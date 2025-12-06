@@ -72,7 +72,7 @@ describe('Gaps discovery tests', () => {
     };
 
     const availableTables = discover(settings);
-    expect(availableTables.length).toBe(0);
+    expect(availableTables).toHaveLength(0);
   });
 
   it('Should offer multiple combination of tables', () => {
@@ -100,9 +100,9 @@ describe('Gaps discovery tests', () => {
     };
 
     const availableTables = discover(settings);
-    expect(availableTables.length).toBe(1);
+    expect(availableTables).toHaveLength(1);
     expect(availableTables[0].kind).toBe('combo');
-    expect(availableTables[0].tableIds.length).toBe(10);
+    expect(availableTables[0].tableIds).toHaveLength(10);
     expect(availableTables[0].maxSize).toBe(10);
     expect(availableTables[0].tableIds).toEqual(
       expect.arrayContaining([
