@@ -401,6 +401,10 @@ export default class {
     try {
       const { restaurantId, sectorId, date } = WokiSchema.Day.parse(req.query);
 
+      const timeZone = (sqlite
+        .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
+        .get(restaurantId)?.timezone || 'UTC') as string;
+
       const stmt = sqlite.prepare(/*sql*/ `
     		SELECT
 					b.id,
@@ -422,7 +426,14 @@ export default class {
         tableIds: (b.tableIds as string).split(','),
       })) as Array<Bookings>;
 
-      reply.code(HttpStatus.Ok).send({ date, items: bookings });
+      reply.code(HttpStatus.Ok).send({
+        date,
+        items: bookings.map(({ start, end, ...booking }) => ({
+          ...booking,
+          start: dayjs.utc(start).tz(timeZone).format(),
+          end: dayjs.utc(end).tz(timeZone).format(),
+        })),
+      });
     } catch (e) {
       if (e instanceof z.ZodError) {
         reply.code(HttpStatus.BadRequest).send({
