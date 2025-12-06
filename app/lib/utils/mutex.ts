@@ -2,7 +2,7 @@ import redis from '@database/driver/redis';
 import Exception from '@exceptions/index';
 
 namespace mutex {
-  export const IDEMPOTENCY_TTL = 60 * 5;
+  export const IDEMPOTENCY_TTL = 60;
   export const LOCK_TTL = 10;
 
   export const Lock = async (key: string) => {

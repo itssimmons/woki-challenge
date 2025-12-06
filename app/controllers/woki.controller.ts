@@ -1,22 +1,23 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
-import type { ScoredGap } from '@domain/wokibrain';
+import type { ScoredGap } from '../core/wokibrain';
 import redis from '@database/driver/redis';
 import sqlite from '@database/driver/sqlite';
-import { discover } from '@domain/gaps';
-import { rank } from '@domain/wokibrain';
 import Exception from '@exceptions/index';
 import dayjs from '@lib/addons/dayjs';
 import HttpStatus from '@lib/consts/HttpStatus';
 import Clock from '@lib/prototypes/clock';
 import mutex from '@lib/utils/mutex';
 import withDefault from '@lib/utils/withDefault';
-import RequestValidations from '@validations/request.validations';
+
+import { discover } from '../core/gaps';
+import { rank } from '../core/wokibrain';
+import WokiSchema from '../schemas/woki.schema';
 
 import '@lib/prototypes/array';
 
-export default class WokiController {
+export default class {
   public static async discover(req: FastifyRequest, reply: FastifyReply) {
     try {
       const {
@@ -28,7 +29,7 @@ export default class WokiController {
         windowStart = undefined,
         windowEnd = undefined,
         limit = 10,
-      } = RequestValidations.DiscoverQuery.parse(req.query);
+      } = WokiSchema.Discover.parse(req.query);
 
       const timeZone = (sqlite
         .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
@@ -170,7 +171,7 @@ export default class WokiController {
         date,
         windowStart,
         windowEnd,
-      } = RequestValidations.BookBody.parse(req.body);
+      } = WokiSchema.Booking.parse(req.body);
 
       if (!idempotencyKey) {
         throw new Exception.MissingIdempotencyKey();
@@ -398,8 +399,7 @@ export default class WokiController {
 
   public static day(req: FastifyRequest, reply: FastifyReply) {
     try {
-      const { restaurantId, sectorId, date } =
-        RequestValidations.DayQuery.parse(req.query);
+      const { restaurantId, sectorId, date } = WokiSchema.Day.parse(req.query);
 
       const stmt = sqlite.prepare(/*sql*/ `
     		SELECT
@@ -439,7 +439,7 @@ export default class WokiController {
 
   public static cancel(req: FastifyRequest, reply: FastifyReply) {
     try {
-      const { id } = RequestValidations.CancelParams.parse(req.params);
+      const { id } = WokiSchema.Cancel.parse(req.params);
 
       const exists = sqlite
         .prepare(`SELECT 1 FROM bookings WHERE id = ?`)

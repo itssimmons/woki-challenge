@@ -1,5 +1,5 @@
 import sqlite from '@database/driver/sqlite';
-import { discover } from '@domain/gaps';
+import { discover } from '@core/gaps';
 
 jest.mock('@database/driver/sqlite', () => ({
   __esModule: true,

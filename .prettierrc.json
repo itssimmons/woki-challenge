@@ -13,7 +13,7 @@
 		"^@config/(.*)$",
 		"^@controllers/(.*)$",
 		"^@database/(.*)$",
-		"^@domain/(.*)$",
+		"^@core/(.*)$",
 		"^@exceptions/(.*)$",
 		"^@lib/(.*)$",
 		"^@routes/(.*)$",

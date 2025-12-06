@@ -1,7 +1,7 @@
-import { rank } from '@domain/wokibrain';
+import { rank } from '@core/wokibrain';
 
 const PERFECT_SCORE = 10.0;
-const UNMATCH_SCORE = 0.0;
+const UNMATCHED_SCORE = 0.0;
 
 describe('Wokibrain ranking tests', () => {
   it('Should at least 1 perfect match', () => {
@@ -10,6 +10,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 2,
         maxSize: 4,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T1'],
         startDate: '',
         endDate: '',
@@ -18,6 +19,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 4,
         maxSize: 6,
         kind: 'combo',
+        sectorId: 'S1',
         tableIds: ['T2', 'T3'],
         startDate: '',
         endDate: '',
@@ -26,6 +28,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 5,
         maxSize: 8,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T4'],
         startDate: '',
         endDate: '',
@@ -43,6 +46,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 4,
         maxSize: 6,
         kind: 'combo',
+        sectorId: 'S1',
         tableIds: ['T2', 'T3'],
         startDate: '',
         endDate: '',
@@ -51,6 +55,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 5,
         maxSize: 8,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T4'],
         startDate: '',
         endDate: '',
@@ -59,6 +64,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 2,
         maxSize: 4,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T1'],
         startDate: '',
         endDate: '',
@@ -88,6 +94,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 2,
         maxSize: 2,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T1'],
         startDate: '',
         endDate: '',
@@ -96,6 +103,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 2,
         maxSize: 4,
         kind: 'combo',
+        sectorId: 'S1',
         tableIds: ['T2', 'T3'],
         startDate: '',
         endDate: '',
@@ -104,6 +112,7 @@ describe('Wokibrain ranking tests', () => {
         minSize: 2,
         maxSize: 4,
         kind: 'single',
+        sectorId: 'S1',
         tableIds: ['T4'],
         startDate: '',
         endDate: '',
@@ -114,7 +123,7 @@ describe('Wokibrain ranking tests', () => {
     const scoredCandidates = rank(candidates, capacity);
 
     for (const candidate of scoredCandidates) {
-      expect(candidate.score).toEqual(UNMATCH_SCORE);
+      expect(candidate.score).toEqual(UNMATCHED_SCORE);
     }
   });
 });

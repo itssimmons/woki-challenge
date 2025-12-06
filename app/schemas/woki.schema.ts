@@ -1,11 +1,11 @@
 import z from 'zod';
 
-namespace Request {
-  export const CancelParams = z.object({
+namespace Schema {
+  export const Cancel = z.object({
     id: z.string(),
   });
 
-  export const DayQuery = z.object({
+  export const Day = z.object({
     restaurantId: z.string(),
     sectorId: z.string(),
     date: z.string().regex(
@@ -15,7 +15,7 @@ namespace Request {
     ),
   });
 
-  export const DiscoverQuery = z.object({
+  export const Discover = z.object({
     restaurantId: z.string(),
     sectorId: z.string(),
     date: z.string().regex(
@@ -52,7 +52,7 @@ namespace Request {
     limit: z.coerce.number().optional(),
   });
 
-  export const BookBody = z.object({
+  export const Booking = z.object({
     restaurantId: z.string(),
     sectorId: z.string(),
     partySize: z.coerce.number().min(1),
@@ -83,4 +83,4 @@ namespace Request {
   });
 }
 
-export default Request;
+export default Schema;

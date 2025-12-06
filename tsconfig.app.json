@@ -17,13 +17,13 @@
 			"@config/*": ["./app/config/*"],
 			"@controllers/*": ["./app/controllers/*"],
 			"@database/*": ["./app/database/*"],
-			"@domain/*": ["./app/domain/*"],
+			"@core/*": ["./app/core/*"],
 			"@exceptions/*": ["./app/exceptions/*"],
 			"@lib/*": ["./app/lib/*"],
 			"@routes/*": ["./app/routes/*"],
 			"@validations/*": ["./app/validations/*"]
 		}
 	},
-	"include": ["**/*.ts", "**/*.d.ts"],
+	"include": ["**/*.ts", "**/*.d.ts", "benchmark.js", "benchmarks/health.bench.js"],
 	"exclude": ["node_modules"]
 }

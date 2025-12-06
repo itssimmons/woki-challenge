@@ -25,7 +25,7 @@ check_nodejs_version() {
 case $1 in
 	'database'|'db')
 		check_nodejs_version
-		pnpm run exec $SCRIPT_DIR/app/database/commands.ts $Args
+		pnpm run exec $SCRIPT_DIR/app/database/cmdline.ts $Args
 	;;
 	'sqlite'|'sql')
 		sqlite3 $SCRIPT_DIR/app/database/database.sqlite3 $Args
