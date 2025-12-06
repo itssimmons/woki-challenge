@@ -71,7 +71,7 @@ namespace Clock {
     const [hours, minutes] = time.split(':').map(Number);
     return base
       .clone()
-      .tz(tz)
+      .tz(tz, true)
       .hour(hours)
       .minute(minutes)
       .second(0)

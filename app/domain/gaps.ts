@@ -43,8 +43,8 @@ export function discover({
     			bt.table_id = t.id
        		AND b.status = 'CONFIRMED'
 					AND NOT (
-						b.end < datetime(:startDate) OR
-						b.start >= datetime(:endDate)
+						b.end < DATETIME(:startDate) OR
+						b.start >= DATETIME(:endDate)
 					)
 			)
 	`);

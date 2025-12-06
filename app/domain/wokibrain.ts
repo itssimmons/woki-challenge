@@ -1,4 +1,4 @@
-type ScoredGap = Join<Gap, { score: number }>;
+export type ScoredGap = Join<Gap, { score: number }>;
 
 /**
  * Ranks the provided gaps based on how well they fit the given capacity.
