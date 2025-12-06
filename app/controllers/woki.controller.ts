@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import z from 'zod';
 
 import type { ScoredGap } from '../core/wokibrain';
-import redis from '@database/driver/redis';
+import { createClient as createRedisClient } from '@database/driver/redis';
 import sqlite from '@database/driver/sqlite';
 import Exception from '@exceptions/index';
 import dayjs from '@lib/addons/dayjs';
@@ -177,6 +177,7 @@ export default class {
         throw new Exception.MissingIdempotencyKey();
       }
 
+      const redis = createRedisClient();
       const cached = await redis.get(`idempotency:${idempotencyKey}`);
       if (cached) {
         reply
@@ -360,6 +361,8 @@ export default class {
       );
 
       await mutex.release(lockKey);
+      redis.quit();
+
       reply.code(201).send(response);
     } catch (e) {
       sqlite.exec('ROLLBACK;');

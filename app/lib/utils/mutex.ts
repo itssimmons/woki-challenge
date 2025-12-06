@@ -1,4 +1,4 @@
-import redis from '@database/driver/redis';
+import { createClient as createRedisClient } from '@database/driver/redis';
 import Exception from '@exceptions/index';
 
 namespace mutex {
@@ -6,6 +6,7 @@ namespace mutex {
   export const LOCK_TTL = 10;
 
   export const Lock = async (key: string) => {
+    const redis = createRedisClient();
     if (await redis.get(key)) {
       throw new Exception.Mutex('Lock already acquired');
     }
@@ -15,13 +16,18 @@ namespace mutex {
         return await redis.set(key, 'locked', 'EX', LOCK_TTL, 'NX');
       },
       async release() {
-        return await redis.del(key);
+        const num = await redis.del(key);
+        redis.quit();
+        return num;
       },
     };
   };
 
   export const release = async (key: string) => {
-    return await redis.del(key);
+    const redis = createRedisClient();
+    const num = await redis.del(key);
+    redis.quit();
+    return num;
   };
 }
 
