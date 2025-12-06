@@ -13,6 +13,10 @@ export default function build(opts = {}) {
     return `Pong in ${elapsed}ms`;
   });
 
+  app.get('/health', async (_, reply) => {
+    reply.status(200).send({ status: 'ok' });
+  });
+
   app.register(import('./routes/1'), { prefix: '/1' });
 
   return app;

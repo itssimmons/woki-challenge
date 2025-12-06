@@ -14,6 +14,7 @@
 		"format": "prettier --write '**/*.ts'",
 		"lint": "eslint . --fix --ext .ts",
 		"test": "jest",
+		"benchmark": "node benchmark.js",
 		"prepare": "husky"
 	},
 	"keywords": [],
@@ -27,8 +28,10 @@
 	"devDependencies": {
 		"@eslint/js": "^9.39.1",
 		"@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+		"@types/autocannon": "^7.12.7",
 		"@types/jest": "^30.0.0",
 		"@types/node": "^24.10.0",
+		"autocannon": "^8.0.0",
 		"esbuild": "^0.25.12",
 		"eslint": "^9.39.1",
 		"globals": "^16.5.0",
