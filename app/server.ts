@@ -9,12 +9,18 @@ import logging from './config/logging';
     logger: logging[env('NODE_ENV', 'development')],
   });
 
-  f.listen({ port: 8080 }, (err, address) => {
-    if (err) {
-      f.log.error(err);
-      process.exit(1);
-    }
+  f.listen(
+    {
+      port: Number(env('PORT', 8080)),
+      host: env('HOST', '0.0.0.0'),
+    },
+    (err, address) => {
+      if (err) {
+        f.log.error(err);
+        process.exit(1);
+      }
 
-    console.log(`Server listening at ${address}`);
-  });
+      console.log(`Server listening at ${address}`);
+    }
+  );
 })();

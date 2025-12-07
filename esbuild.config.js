@@ -1,7 +1,7 @@
 import { build } from "esbuild";
 
 build({
-	entryPoints: ["app/main.ts"],
+	entryPoints: ["app/server.ts"],
 	outfile: "dist/index.js",
 	bundle: true,
 	minify: true,
@@ -12,6 +12,7 @@ build({
 		"fastify",
 		"fastify/*",
 		"@fastify/*",
+		"ioredis",
 		"node:*",
 		"events",
 		"fs",

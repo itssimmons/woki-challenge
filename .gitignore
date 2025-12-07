@@ -7,6 +7,8 @@ node_modules/
 !.env.example
 
 # Database
+data/
+*.db
 *.sqlite
 *.sqlite3
 
