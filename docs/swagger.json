@@ -104,7 +104,13 @@
           },
           "422": {
             "$ref": "#/components/responses/OutsideServiceWindow"
-          }
+          },
+          "404": {
+          	"$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+						"$ref": "#/components/responses/InternalServerError"
+					}
         }
       }
     },
@@ -138,9 +144,12 @@
           "422": {
             "$ref": "#/components/responses/OutsideServiceWindow"
           },
+          "404": {
+          	"$ref": "#/components/responses/NotFound"
+          },
           "500": {
-            "description": "Internal Server Error"
-          }
+						"$ref": "#/components/responses/InternalServerError"
+					}
         }
       }
     },
@@ -168,9 +177,12 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
+          "404": {
+          	"$ref": "#/components/responses/NotFound"
+          },
           "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          }
+						"$ref": "#/components/responses/InternalServerError"
+					}
         }
       }
     },
@@ -194,7 +206,7 @@
         ],
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "No Content - Booking slot freed"
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -361,6 +373,7 @@
     },
     "schemas": {
       "WokiDiscover": {
+      	"description": "Discover available reservation slots",
         "type": "object",
         "properties": {
           "slotsMinutes": {
@@ -410,6 +423,7 @@
         }
       },
       "WokiBookings": {
+      	"description": "Booking details",
         "type": "object",
         "properties": {
           "id": {
@@ -456,6 +470,7 @@
         }
       },
       "WokiDay": {
+     		"description": "Bookings for a specific day",
         "type": "object",
         "properties": {
           "date": {
@@ -578,6 +593,25 @@
           }
         }
       },
+      "NotFound": {
+				"description": "Not Found",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"error": {
+									"type": "string",
+									"example": "not_found"
+								},
+								"detail": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
       "InternalServerError": {
         "description": "Internal Server Error",
         "content": {

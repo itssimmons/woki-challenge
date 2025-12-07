@@ -31,9 +31,13 @@ export default class {
         limit = 10,
       } = WokiSchema.Discover.parse(req.query);
 
-      const timeZone = (sqlite
+      const timeZone = sqlite
         .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
-        .get(restaurantId)?.timezone || 'UTC') as string;
+        .get(restaurantId)?.timezone as string | undefined;
+
+      if (!timeZone) {
+        throw new Exception.NotFound();
+      }
 
       const openHours = sqlite
         .prepare(
@@ -151,6 +155,11 @@ export default class {
           error: 'no_capacity',
           detail: 'No single or combo gap fits duration within window',
         });
+      } else if (e instanceof Exception.NotFound) {
+        reply.code(404).send({
+          error: 'not_found',
+          detail: 'Restaurant/Sector not found',
+        });
       } else {
         // Unexpected error
         req.log.error(e);
@@ -188,9 +197,13 @@ export default class {
         return;
       }
 
-      const timeZone = (sqlite
+      const timeZone = sqlite
         .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
-        .get(restaurantId)?.timezone || 'UTC') as string;
+        .get(restaurantId)?.timezone as string | undefined;
+
+      if (!timeZone) {
+        throw new Exception.NotFound();
+      }
 
       const openHours = sqlite
         .prepare(
@@ -389,6 +402,11 @@ export default class {
           error: 'outside_service_window',
           detail: 'Window does not intersect service hours',
         });
+      } else if (e instanceof Exception.NotFound) {
+        reply.code(404).send({
+          error: 'not_found',
+          detail: 'Restaurant/Sector not found',
+        });
       } else if (e instanceof Exception.NoCapacity) {
         reply.code(409).send({
           error: 'no_capacity',
@@ -406,9 +424,13 @@ export default class {
     try {
       const { restaurantId, sectorId, date } = WokiSchema.Day.parse(req.query);
 
-      const timeZone = (sqlite
+      const timeZone = sqlite
         .prepare(/*sql*/ `SELECT timezone FROM restaurants WHERE id = ?`)
-        .get(restaurantId)?.timezone || 'UTC') as string;
+        .get(restaurantId)?.timezone as string | undefined;
+
+      if (!timeZone) {
+        throw new Exception.NotFound();
+      }
 
       const stmt = sqlite.prepare(/*sql*/ `
     		SELECT
@@ -444,6 +466,11 @@ export default class {
         reply.code(HttpStatus.BadRequest).send({
           error: 'bad_request',
           detail: e.issues,
+        });
+      } else if (e instanceof Exception.NotFound) {
+        reply.code(HttpStatus.NotFound).send({
+          error: 'not_found',
+          detail: 'Restaurant/Sector not found',
         });
       } else {
         // Unexpected error

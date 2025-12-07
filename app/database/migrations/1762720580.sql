@@ -1,7 +1,7 @@
 create table if not exists restaurants (
 	id 					text,
 	name 				text not null,
-	timezone		text,
+	timezone		text default 'UTC',
 	updated_at 	timestamp not null default current_timestamp,
 	created_at 	timestamp not null default current_timestamp,
 	
