@@ -7,27 +7,38 @@ namespace mutex {
 
   export const Lock = async (key: string) => {
     const redis = createRedisClient();
-    if (await redis.get(key)) {
-      throw new Exception.Mutex('Lock already acquired');
-    }
 
-    return {
-      async acquire() {
-        return await redis.set(key, 'locked', 'EX', LOCK_TTL, 'NX');
-      },
-      async release() {
-        const num = await redis.del(key);
-        redis.quit();
-        return num;
-      },
-    };
+    try {
+      const alreadyLocked = await redis.get(key);
+      if (alreadyLocked) {
+        throw new Exception.Mutex('Lock already acquired');
+      }
+
+      return {
+        async acquire() {
+          return await redis.set(key, 'locked', 'EX', LOCK_TTL, 'NX');
+        },
+        async release() {
+          const num = await redis.del(key);
+          redis.quit();
+          return num;
+        },
+      };
+    } catch (error) {
+      redis.quit();
+      throw error;
+    }
   };
 
   export const release = async (key: string) => {
     const redis = createRedisClient();
-    const num = await redis.del(key);
-    redis.quit();
-    return num;
+
+    try {
+      const num = await redis.del(key);
+      return num;
+    } finally {
+      redis.quit();
+    }
   };
 }
 
