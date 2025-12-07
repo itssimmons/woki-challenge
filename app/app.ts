@@ -6,7 +6,12 @@ const dirname = path.resolve(process.cwd(), 'app');
 export default async function build(opts = {}) {
   const app = fastify(opts);
 
-  app.register(import('@fastify/static'), {
+  app.register(import('fastify-metrics'), {
+    endpoint: '/metrics',
+    defaultMetrics: { enabled: true },
+    routeMetrics: { enabled: true, routeBlacklist: [/metrics/, /apidocs/] },
+  });
+  await app.register(import('@fastify/static'), {
     root: path.join(dirname, '..', 'docs'),
     prefix: '/',
   });
