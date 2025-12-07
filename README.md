@@ -6,6 +6,7 @@ First of all, thank you for taking the time to review my challenge proposal. In 
 
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Available Environments](#available-environments)
 - [Technologies Used](#technologies-used)
 - [Decisions & Thought process](#decisions--thought-process)
 	- [API Versioning](#api-versioning)
@@ -73,25 +74,51 @@ I'm assuming you already have nvm installed. If not, please refer to https://git
 
 1. Install [Redis locally](https://redis.io/docs/latest/operate/oss_and_stack/install/archive/install-redis/) or via docker `docker run -d --name redis -p 6379:6379 redis:latest`
 2. It is not needed, but highly recommended, create a `.env` file at the root of the project and paste the content of the `.env.example` file. (It is good enough to test the project right away)
-3. Having [Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating) installed on your machine
+3. Having a[Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating) nvm to meention one, installed on your machine
 
 #### Unix-based Systems (Linux & MacOS)
 
 ```bash
+# Install dependencies
 nvm install $(cat .node-version)
 npm i -g pnpm
-pnpm install
-pnpm run start
+
+# Copy environment file
+cp .env.example .env.development
+
+# Database migration and seeding, using your existing exec script
+chmod u+x ./spell
+./spell db --migrate --seed
+
+# Start development server
+./spell start
 ```
 
 #### Windows
 
 ```powershell
+# Install dependencies
 nvm install (Get-Content .node-version)
 npm i -g pnpm
 pnpm install
-pnpm run start
+
+# Copy environment file
+Copy-Item .env.example .env.development
+
+# Database migration and seeding, using your existing exec script
+pnpm run exec ./app/database/cmdline.ts --migrate --seed
+
+# Start development server
+pnpm run dev
 ```
+
+## Available Environments
+
+You can start playing around with the API at:
+
+### Testing
+
+https://woki-challenge-141517873406.us-east1.run.app/apidocs
 
 ## Technologies Used
 
@@ -120,19 +147,19 @@ I implemented API versioning using URL path versioning (e.g., `/1/woki/*`). This
 
 ### Datetime Handling
 
-Although JavaScript's native `Date` object provides basic date and time functionalities, it is an implementation that I have always tried to avoid; it was influenced by Java back in the day, and has several quirks and limitations that can lead to unexpected behaviour, or several amounts of code just to perform minimal behaviours.
+Although JavaScript's native `Date` object provides basic date and time functionalities, it is an implementation that I've always tried to avoid; it was influenced by Java back in the day, and has several quirks and limitations that can lead to unexpected behaviour, or several amounts of code just to perform minimal functionalities.
 
-A 2kb option is `dayjs`, a lightweight library that offers a simple and consistent API for parsing, validating, manipulating, formatting dates, and most importantly, timezone translation. It provides a more intuitive and reliable way to handle datetime operations compared to the native `Date` object.
+A **2KB** option is `dayjs`, a lightweight library that offers a simple and consistent API for parsing, validating, manipulating, formatting dates, and most importantly, timezone translation. It provides a more intuitive and reliable way to handle datetime operations compared to the native `Date` object.
 
 ### Datebase & Caching
 
 For the purpose of this challenge, I chose SQLite as the database (more explicitly `node:sqlite` from node version 24) due to its simplicity and ease of setup. It allowed me to focus on the core functionality without the overhead of managing a more complex database system.
 
-To avoid a race condition, the first option that came to my mind was to use Redis as a caching layer. This decision was made to ensure data consistency and improve performance when handling concurrent requests, due to the speed of Redis operations.
+To avoid a race condition, the first option that came to my mind was to use Redis as a caching layer. This decision was made to ensure data consistency and improve performance when handling concurrent requests, due to the speed of in-memory & single-threaded event loop operations.
 
 ### Testing
 
-As you can see, I not only wrote unit tests for the endpoints, but also for the core logic and utility functions. This comprehensive testing approach helps ensure the reliability and correctness of the application. In fact, this approach allowed me to catch edge cases and potential bugs even before thinking about the endpoints' behaviours.
+As you can see, I not only wrote unit tests for the endpoints or the criteria of the challenge (section 7), but also for the core logic and utility functions. This comprehensive testing approach helps ensure the reliability and correctness of the application. In fact, this approach allowed me to catch edge cases and potential bugs even before thinking about endpoints.
 
 ### Documentation
 
@@ -142,21 +169,22 @@ I used Swagger to document the API endpoints, providing clear and concise inform
 
 One of the most challenging aspects of this project was implementing the gap-finding algorithm. I opted for a backtracking approach to efficiently explore possible combinations of time slots and identify suitable gaps for scheduling. This method allowed me to handle complex scenarios and ensure that the algorithm could adapt to various constraints and requirements.
 
-Isn't it more than a recursive pattern than an exhaustive look for all possible paths, accepting and rejecting paths as soon as they are found to be invalid or valid, respectively?
+It's nothing more than a recursive pattern that gives an exhaustive look for all possible paths, accepting and rejecting paths as soon as they are found to be invalid or valid, respectively.
 
 ### Wokibrain
 
-Now, having all the pieces/gaps together, I implemented a simple arithmetic which is: `( (max size of the table(s) - desired capacity) - 10 )`, all non-positive values are shifted to 0, because it's irrelevant to score gaps that can't fit the desired capacity. This array of gaps is sorted in descending order.
+Now, having all the pieces together, I implemented a simple arithmetic which is: `( (max size of the table(s) - desired capacity) - 10 )`, all non-positive values are shifted to 0, because it's irrelevant to score gaps that can't fit the desired capacity (This array of gaps is sorted in descending order).
 
-In the case of reservations, the first scored gap is the one that is selected as the best candidate.
+> In the case of reservations, the first scored gap is the one that is selected as the best candidate.
 
 ### CI/CD
 
-I set up a CI/CD pipeline using GitHub Actions to automate the testing and deployment process. The deployments run every tag creation, following the semantic versioning convention. The project is built by a Docker image and published to a registry that Google Cloud Run can access, enabling seamless and efficient deployment of the application. If any test fails, the deployment process is halted to ensure that only stable and reliable code is deployed.
+I set up a CI/CD pipeline using GitHub Actions to automate the testing and deployment process. The deployments run every time a tag is created, following the semantic versioning convention. The project is built by a Docker image and published to a registry that Google Cloud Run can access, enabling seamless and efficient deployment of the application. If any test fails, the deployment process is halted to ensure that only stable and reliable code is deployed.
 
 ## Author
 
-This repository is property of [@itssimmons](https://github.com/itssimmons) and is intended to showcase the way I approached this take-home challenge.
+This repository is the property of [@itssimmons](https://github.com/itssimmons) and is intended to showcase the approach I took to this take-home challenge.
 
-<sup><em>last update sat 6 dec 2025 23:00</em><sup>
+<sup><em>last update sat 7 dec 2025 13:14</em><sup>
+
 
