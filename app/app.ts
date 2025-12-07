@@ -9,7 +9,10 @@ export default async function build(opts = {}) {
   app.register(import('fastify-metrics'), {
     endpoint: '/metrics',
     defaultMetrics: { enabled: true },
-    routeMetrics: { enabled: true, routeBlacklist: [/metrics/, /apidocs/] },
+    routeMetrics: {
+      enabled: true,
+      routeBlacklist: [/metrics/, /apidocs/, /swagger\.json/],
+    },
   });
   await app.register(import('@fastify/static'), {
     root: path.join(dirname, '..', 'docs'),
