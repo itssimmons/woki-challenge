@@ -16,6 +16,8 @@ First of all, thank you for taking the time to review my challenge proposal. In 
 	- [Documentation](#documentation)
 	- [Gaps](#gaps)
 	- [Wokibrain](#wokibrain)
+	- [Benchmarking](#benchmarking)
+	- [Metrics](#metrics)
 	- [CI/CD](#cicd)
 - [Author](#author)
 
@@ -74,9 +76,10 @@ I'm assuming you already have nvm installed. If not, please refer to https://git
 
 1. Install [Redis locally](https://redis.io/docs/latest/operate/oss_and_stack/install/archive/install-redis/) or via docker `docker run -d --name redis -p 6379:6379 redis:latest`
 2. It is not needed, but highly recommended, create a `.env` file at the root of the project and paste the content of the `.env.example` file. (It is good enough to test the project right away)
-3. Having a[Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating) nvm to meention one, installed on your machine
+3. Having a [Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating) nvm to meention one, installed on your machine
 
 #### Unix-based Systems (Linux & MacOS)
+**Bash/Shell**
 
 ```bash
 # Install dependencies
@@ -95,6 +98,7 @@ chmod u+x ./spell
 ```
 
 #### Windows
+**PowerShell**
 
 ```powershell
 # Install dependencies
@@ -114,7 +118,10 @@ pnpm run dev
 
 ## Available Environments
 
-You can start playing around with the API at the hosted version deployed as a Google Cloud Run Function: https://woki-challenge-141517873406.us-east1.run.app/apidocs
+You can start playing around with the API at the hosted version deployed as a Google Cloud Run Function:
+ 
+- API Docs: https://woki-challenge-141517873406.us-east1.run.app/apidocs
+- Metrics: https://woki-challenge-141517873406.us-east1.run.app/metrics
 
 ## Technologies Used
 
@@ -167,11 +174,23 @@ One of the most challenging aspects of this project was implementing the gap-fin
 
 It's nothing more than a recursive pattern that gives an exhaustive look for all possible paths, accepting and rejecting paths as soon as they are found to be invalid or valid, respectively.
 
+> For performance reasons, I only considered gaps that are equal to or larger than the desired capacity with a buffer plus of 3, as well as pruning duplicates paths like (T1+T2) (T2+T1) or (T1+T1).
+
+> BigO notation of this algorithm is O(2^n) in the worst case scenario, where n is the number of slots available. However, due to the pruning of invalid paths, the average case performance is significantly better. an algorithm of O(n^2) also cross in my mind, and I still thought that it wasn't a bad idea, but since the facility of backtracking to prune invalid paths, to not explore them further, made me decide to for backtracking.
+
 ### Wokibrain
 
-Now, having all the pieces together, I implemented a simple arithmetic which is: `( (max size of the table(s) - desired capacity) - 10 )`, all non-positive values are shifted to 0, because it's irrelevant to score gaps that can't fit the desired capacity (This array of gaps is sorted in descending order).
+Now, having all the pieces together, I implemented a simple arithmetic which is: `( (max size of the table(s) - desired capacity) - 10 )`, all non-positive values are shifted to 0, because it's irrelevant to score gaps that can't fit the desired capacity (This array of gaps is sorted in descending order). At this way I'm scoring based on how much this extra capacity is wasted.
 
 > In the case of reservations, the first scored gap is the one that is selected as the best candidate.
+
+### Benchmarking
+
+I created benchmarking scripts to measure the performance of the gap-finding algorithm under various scenarios. These benchmarks help identify potential bottlenecks and areas for optimization, ensuring that the algorithm performs efficiently even with larger datasets.
+
+### Metrics
+
+To monitor the performance and health of the application, I integrated basic metrics collection using Nodejs Prometheus. This setup allows me to track key performance indicators, such as response times, error rates, and resource utilization, providing valuable insights into the application's behavior.
 
 ### CI/CD
 
@@ -182,6 +201,3 @@ I set up a CI/CD pipeline using GitHub Actions to automate the testing and deplo
 This repository is the property of [@itssimmons](https://github.com/itssimmons) and is intended to showcase the approach I took to this take-home challenge.
 
 <sup><em>last update sat 7 dec 2025 13:14</em><sup>
-
-
-
