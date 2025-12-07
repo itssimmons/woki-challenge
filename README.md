@@ -11,7 +11,7 @@ First of all, thank you for taking the time to review my challenge proposal. In 
 - [Decisions & Thought process](#decisions--thought-process)
 	- [API Versioning](#api-versioning)
 	- [Datetime Handling](#datetime-handling)
-	- [Datebase & Caching](#datebase--caching)
+	- [Database & Caching](#database--caching)
 	- [Testing](#testing)
 	- [Documentation](#documentation)
 	- [Gaps](#gaps)
@@ -114,11 +114,7 @@ pnpm run dev
 
 ## Available Environments
 
-You can start playing around with the API at:
-
-### Testing
-
-https://woki-challenge-141517873406.us-east1.run.app/apidocs
+You can start playing around with the API at the hosted version deployed as a Google Cloud Run Function: https://woki-challenge-141517873406.us-east1.run.app/apidocs
 
 ## Technologies Used
 
@@ -139,7 +135,7 @@ The following technologies and tools were used in this project:
 
 ## Decisions & Thought process
 
-Let's break down my experience working on this challenge, to you, what I thought, what I liked, and what could be improved:
+Let's break down my experience working on this challenge, for you, what I thought, what I liked, and what could be improved:
 
 ### API Versioning
 
@@ -151,7 +147,7 @@ Although JavaScript's native `Date` object provides basic date and time function
 
 A **2KB** option is `dayjs`, a lightweight library that offers a simple and consistent API for parsing, validating, manipulating, formatting dates, and most importantly, timezone translation. It provides a more intuitive and reliable way to handle datetime operations compared to the native `Date` object.
 
-### Datebase & Caching
+### Database & Caching
 
 For the purpose of this challenge, I chose SQLite as the database (more explicitly `node:sqlite` from node version 24) due to its simplicity and ease of setup. It allowed me to focus on the core functionality without the overhead of managing a more complex database system.
 
@@ -186,5 +182,6 @@ I set up a CI/CD pipeline using GitHub Actions to automate the testing and deplo
 This repository is the property of [@itssimmons](https://github.com/itssimmons) and is intended to showcase the approach I took to this take-home challenge.
 
 <sup><em>last update sat 7 dec 2025 13:14</em><sup>
+
 
 
