@@ -1,7 +1,27 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import fastify from 'fastify';
 
-export default function build(opts = {}) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default async function build(opts = {}) {
   const app = fastify(opts);
+
+  app.register(import('@fastify/static'), {
+    root: path.join(__dirname, '..', 'docs'),
+    prefix: '/',
+  });
+
+  app.get('/apidocs', async (_, reply) => {
+    return reply.sendFile('swagger-ui.html');
+  });
+
+  app.get('/swagger.json', async (_, reply) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { $schema, ...docs } = await import('../docs/swagger.json');
+    reply.header('content-type', 'application/json').send(docs);
+  });
 
   app.get('/ping', (_, reply) => {
     const headers = reply.getHeaders();
@@ -17,7 +37,14 @@ export default function build(opts = {}) {
     reply.status(200).send({ status: 'ok' });
   });
 
-  app.register(import('./routes/1'), { prefix: '/1' });
+  app.addHook('preHandler', (_, reply, done) => {
+    reply.header('x-now', String(performance.now()));
+    done();
+  });
+
+  await app.register(import('./routes/1'), { prefix: '/1' });
+
+  await app.ready();
 
   return app;
 }

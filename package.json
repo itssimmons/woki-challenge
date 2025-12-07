@@ -49,6 +49,7 @@
 		"typescript-transform-paths": "^3.5.5"
 	},
 	"dependencies": {
+		"@fastify/static": "^8.3.0",
 		"chalk": "^5.6.2",
 		"dayjs": "^1.11.19",
 		"fastify": "^5.6.1",
