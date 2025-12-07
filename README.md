@@ -58,7 +58,10 @@ woki-challenge/
 
 I'm going to offer you 2 ways to get started with the project: using **Docker** or running it **locally**.
 
-Once the project is up and running, you can access the API documentation at: http://127.0.0.1:8080/apidocs
+Once the project is up and running, you can access the API documentation at:
+
+- http://127.0.0.1:8080/apidocs
+- http://127.0.0.1:8080/metrics (only available when running locally)
 
 ### Using Docker (recommended)
 
@@ -121,7 +124,6 @@ pnpm run dev
 You can start playing around with the API at the hosted version deployed as a Google Cloud Run Function:
  
 - API Docs: https://woki-challenge-141517873406.us-east1.run.app/apidocs
-- Metrics: https://woki-challenge-141517873406.us-east1.run.app/metrics
 
 ## Technologies Used
 

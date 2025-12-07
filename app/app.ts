@@ -8,20 +8,19 @@ const dirname = path.resolve(process.cwd(), 'app');
 export default async function build(opts = {}) {
   const app = fastify(opts);
 
-  app.register(import('fastify-metrics'), {
-    endpoint: '/metrics',
-    defaultMetrics: {
-      enabled: ['development', 'production'].includes(
-        env('NODE_ENV', 'development')
-      ),
-    },
-    routeMetrics: {
-      enabled: ['development', 'production'].includes(
-        env('NODE_ENV', 'development')
-      ),
-      routeBlacklist: [/metrics/, /apidocs/, /swagger\.json/],
-    },
-  });
+  if (env('NODE_ENV', 'development') === 'development') {
+    await app.register(import('fastify-metrics'), {
+      endpoint: '/metrics',
+      defaultMetrics: {
+        enabled: true,
+      },
+      routeMetrics: {
+        enabled: true,
+        routeBlacklist: [/metrics/, /apidocs/, /swagger\.json/],
+      },
+    });
+  }
+
   await app.register(import('@fastify/static'), {
     root: path.join(dirname, '..', 'docs'),
     prefix: '/',

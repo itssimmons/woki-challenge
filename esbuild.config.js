@@ -16,6 +16,6 @@ build({
 		"node:*",
 		"events",
 		"fs",
-		"path",
+		"path"
 	],
 }).catch(() => process.exit(1));

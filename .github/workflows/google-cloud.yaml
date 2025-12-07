@@ -66,6 +66,7 @@ jobs:
           gcloud run deploy woki-challenge \
             --image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ vars.GCP_REPOSITORY }}/woki-challenge:${TAG_NAME} \
             --platform managed \
+            --set-env-vars=NODE_ENV=production \
             --region=${{ vars.GCP_REGION }} \
             --allow-unauthenticated
     

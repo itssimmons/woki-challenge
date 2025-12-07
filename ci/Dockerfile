@@ -1,6 +1,8 @@
 FROM node:24-slim AS base
 WORKDIR /www
 
+ENV NODE_ENV=production
+
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 FROM base AS deps
