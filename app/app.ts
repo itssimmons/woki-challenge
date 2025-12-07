@@ -1,6 +1,8 @@
 import path from 'node:path';
 import fastify from 'fastify';
 
+import env from '@config/env';
+
 const dirname = path.resolve(process.cwd(), 'app');
 
 export default async function build(opts = {}) {
@@ -8,9 +10,15 @@ export default async function build(opts = {}) {
 
   app.register(import('fastify-metrics'), {
     endpoint: '/metrics',
-    defaultMetrics: { enabled: true },
+    defaultMetrics: {
+      enabled: ['development', 'production'].includes(
+        env('NODE_ENV', 'development')
+      ),
+    },
     routeMetrics: {
-      enabled: true,
+      enabled: ['development', 'production'].includes(
+        env('NODE_ENV', 'development')
+      ),
       routeBlacklist: [/metrics/, /apidocs/, /swagger\.json/],
     },
   });

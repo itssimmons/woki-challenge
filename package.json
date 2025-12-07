@@ -13,7 +13,7 @@
 		"serve:ts": "node --import=tsx src/index.ts",
 		"format": "prettier --write '**/*.ts'",
 		"lint": "eslint . --fix --ext .ts",
-		"test": "jest",
+		"test": "NODE_ENV=testing jest",
 		"benchmark": "node benchmark.js",
 		"prepare": "husky"
 	},
