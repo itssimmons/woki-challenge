@@ -2,7 +2,7 @@
 	"name": "woki-challenge",
 	"version": "1.0.0",
 	"description": "",
-	"main": "app/main.ts",
+	"main": "app/server.ts",
 	"type": "module",
 	"scripts": {
 		"start": "pnpm build && pnpm serve",

@@ -13,7 +13,7 @@ describe('GET /1/woki/bookigns/day', () => {
   let server: FastifyInstance;
 
   beforeEach(async () => {
-    server = build();
+    server = await build();
     mem = new DatabaseSync(':memory:');
 
     for await (const sql of fs.glob(

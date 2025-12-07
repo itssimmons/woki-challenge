@@ -34,7 +34,7 @@ describe('POST /1/woki/bookings', () => {
   let server: FastifyInstance;
 
   beforeEach(async () => {
-    server = build();
+    server = await build();
     mem = new DatabaseSync(':memory:');
 
     for await (const sql of fs.glob(

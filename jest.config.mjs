@@ -4,6 +4,7 @@ import tsconfig from "./tsconfig.app.json" with { type: "json" };
 /** @type {import("jest").Config} **/
 export default {
 	testEnvironment: "node",
+	extensionsToTreatAsEsm: [".ts"],
 	moduleNameMapper: pathsToModuleNameMapper(tsconfig.compilerOptions.paths, {
 		prefix: "<rootDir>/",
 	}),

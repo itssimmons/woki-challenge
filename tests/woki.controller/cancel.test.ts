@@ -19,8 +19,8 @@ jest.mock('@database/driver/sqlite', () => {
 describe('DELETE /1/woki/bookings/:id', () => {
   let server: FastifyInstance;
 
-  beforeEach(() => {
-    server = build();
+  beforeEach(async () => {
+    server = await build();
     jest.resetAllMocks();
   });
 
