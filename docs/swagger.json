@@ -1,5 +1,5 @@
 {
-	"$schema": "https://spec.openapis.org/oas/3.0/schema/2021-09-28",
+  "$schema": "https://spec.openapis.org/oas/3.0/schema/2021-09-28",
   "openapi": "3.0.0",
   "info": {
     "title": "Woki API Docs",
@@ -12,379 +12,591 @@
       "description": "Development server"
     },
     {
-			"url": "https://test.example.woki-challenge.com",
-			"description": "Test server"
-		}
+      "url": "https://woki-challenge-141517873406.us-east1.run.app",
+      "description": "Test server"
+    }
   ],
   "paths": {
-	  "/1/woki/discover": {
-			"get": {
-				"tags": ["Woki"],
-				"summary": "Discover available reservation slots",
-				"parameters": [
-					{ "$ref": "#/components/parameters/restaurantParam" },
-					{ "$ref": "#/components/parameters/sectorParam" },
-					{ "$ref": "#/components/parameters/dateParam" },
-					{ "$ref": "#/components/parameters/partySizeParam" },
-					{ "$ref": "#/components/parameters/durationParam" },
-					{ "$ref": "#/components/parameters/windowStartParam" },
-					{ "$ref": "#/components/parameters/windowEndParam" },
-					{ "$ref": "#/components/parameters/limitParam" }
-				],
-				"responses": {
-					"200": {
-						"$ref": "#/components/schemas/WokiDiscover"
-					},
-					"400": {
-						"$ref": "#/components/responses/BadRequest"
-					},
-					"422": {
-						"$ref": "#/components/responses/OutsideServiceWindow"
-					},
-					"409": {
-						"$ref": "#/components/responses/NoCapacity"
-					}
-				}
-			}
-	  },
-		"/1/woki/bookings": {
-			"post": {
-				"tags": ["Woki"],
-				"summary": "Create a booking",
-				"parameters": [
-					{ "$ref": "#/components/parameters/idempotencyKeyHeader" }
-				],
-				"requestBody": {
-					"$ref": "#/components/requestBodies/WokiBookings"
-				},
-				"responses": {
-					"201": {
-						"$ref": "#/components/responses/WokiBookings"
-					},
-					"200": {
-						"$ref": "#/components/responses/WokiBookings"
-					},
-					"400": {
-						"$ref": "#/components/responses/BadRequest"
-					},
-					"422": {
-						"$ref": "#/components/responses/OutsideServiceWindow"
-					},
-					"409": {
-						"$ref": "#/components/responses/NoCapacity"
-					},
-					"500": {
-						"description": "Internal Server Error"
-					}
-				}
-			}
-		},
-		"/1/woki/bookings/day": {
-			"get": {
-				"tags": ["Woki"],
-				"summary": "Get bookings for a specific day",
-				"parameters": [
-					{ "$ref": "#/components/parameters/restaurantParam" },
-					{ "$ref": "#/components/parameters/sectorParam" },
-					{ "$ref": "#/components/parameters/dateParam" }
-				],
-				"responses": {
-					"200": {
-						"$ref": "#/components/schemas/WokiDay"
-					},
-					"400": {
-						"$ref": "#/components/responses/BadRequest"
-					},
-					"500": {
-						"$ref": "#/components/responses/InternalServerError"
-					}
-				}
-			}
-		},
-		"/1/woki/bookings/{id}": {
-			"delete": {
-				"tags": ["Woki"],
-				"summary": "Get booking by ID",
-				"parameters": [
-					{
-						"name": "id",
-						"in": "path",
-						"description": "ID of the booking",
-						"required": true,
-						"schema": { "type": "string", "example": "BK_001" }
-					}
-				],
-				"responses": {
-					"204": {
-						"description": "No Content"
-					},
-					"400": {
-						"$ref": "#/components/responses/BadRequest"
-					},
-					"500": {
-						"$ref": "#/components/responses/InternalServerError"
-					}
-				}
-			}
-		}
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "responses": {
+          "200": {
+            "description": "Status ok",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "summary": "Ping check endpoint",
+        "responses": {
+          "200": {
+            "description": "pong!",
+            "content": {
+              "text/plain": {
+              	"schema": {
+									"type": "string",
+									"example": "Pong in 0.020ms"
+								}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/1/woki/discover": {
+      "get": {
+        "tags": [
+          "Woki"
+        ],
+        "summary": "Discover available reservation slots",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/restaurantParam"
+          },
+          {
+            "$ref": "#/components/parameters/sectorParam"
+          },
+          {
+            "$ref": "#/components/parameters/dateParam"
+          },
+          {
+            "$ref": "#/components/parameters/partySizeParam"
+          },
+          {
+            "$ref": "#/components/parameters/durationParam"
+          },
+          {
+            "$ref": "#/components/parameters/windowStartParam"
+          },
+          {
+            "$ref": "#/components/parameters/windowEndParam"
+          },
+          {
+            "$ref": "#/components/parameters/limitParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/schemas/WokiDiscover"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/NoCapacity"
+          },
+          "422": {
+            "$ref": "#/components/responses/OutsideServiceWindow"
+          }
+        }
+      }
+    },
+    "/1/woki/bookings": {
+      "post": {
+        "tags": [
+          "Woki"
+        ],
+        "summary": "Create a booking",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/idempotencyKeyHeader"
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/WokiBookings"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/WokiBookings"
+          },
+          "201": {
+            "$ref": "#/components/responses/WokiBookings"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/NoCapacity"
+          },
+          "422": {
+            "$ref": "#/components/responses/OutsideServiceWindow"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/1/woki/bookings/day": {
+      "get": {
+        "tags": [
+          "Woki"
+        ],
+        "summary": "Get bookings for a specific day",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/restaurantParam"
+          },
+          {
+            "$ref": "#/components/parameters/sectorParam"
+          },
+          {
+            "$ref": "#/components/parameters/dateParam"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/schemas/WokiDay"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/1/woki/bookings/{id}": {
+      "delete": {
+        "tags": [
+          "Woki"
+        ],
+        "summary": "Get booking by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the booking",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "BK_001"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
   },
   "tags": [
-    { "name": "Woki", "description": "Woki related endpoints" }
+    {
+      "name": "Woki",
+      "description": "Woki related endpoints"
+    }
   ],
   "externalDocs": {
     "url": "https://swagger.io",
     "description": "Find more info here"
   },
   "components": {
-		"parameters": {
-			"idempotencyKeyHeader": {
-				"name": "Idempotency-Key",
-				"in": "header",
-				"description": "Idempotency key to ensure request uniqueness",
-				"required": true,
-				"schema": { "type": "string", "example": "unique-key-12345" }
-			},
-			"restaurantParam": {
-				"name": "restaurantId",
-				"in": "query",
-				"description": "ID of the restaurant",
-				"required": true,
-				"schema": { "type": "string" }
-			},
-			"sectorParam": {
-				"name": "sectorId",
-				"in": "query",
-				"description": "ID of the sector",
-				"required": true,
-				"schema": { "type": "string" }
-			},
-			"dateParam": {
-				"name": "date",
-				"in": "query",
-				"description": "Date in YYYY-MM-DD format",
-				"required": true,
-				"schema": {
-					"type": "string",
-					"pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
-				}
-			},
-			"partySizeParam": {
-				"name": "partySize",
-				"in": "query",
-				"description": "Number of people in the party",
-				"required": true,
-				"schema": { "type": "integer", "minimum": 1 }
-			},
-			"durationParam": {
-				"name": "duration",
-				"in": "query",
-				"description": "Duration of the reservation in minutes",
-				"required": true,
-				"schema": { "type": "integer", "minimum": 15, "maximum": 180 }
-			},
-			"windowStartParam": {
-				"name": "windowStart",
-				"in": "query",
-				"description": "Start time of the window in HH:MM format",
-				"required": false,
-				"schema": {
-					"type": "string",
-					"pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
-				}
-			},
-			"windowEndParam": {
-				"name": "windowEnd",
-				"in": "query",
-				"description": "End time of the window in HH:MM format",
-				"required": false,
-				"schema": {
-					"type": "string",
-					"pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
-				}
-			},
-			"limitParam": {
-				"name": "limit",
-				"in": "query",
-				"description": "Maximum number of results to return",
-				"required": false,
-				"schema": { "type": "integer" }
-			}
-		},
-		"requestBodies": {
-			"WokiBookings": {
-				"required": true,
-				"content": {
-					"application/json": {
-						"schema": {
-							"type": "object",
-							"properties": {
-								"restaurantId": { "type": "string" },
-								"sectorId": { "type": "string" },
-								"partySize": { "type": "integer", "minimum": 1 },
-								"duration": { "type": "integer", "minimum": 15, "maximum": 180 },
-								"date": { "type": "string", "example": "2025-10-22" },
-								"windowStart": { "type": "string", "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$", "example": "18:00" },
-								"windowEnd": { "type": "string", "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$", "example": "20:00" }
-							},
-							"required": [
-								"restaurantId",
-								"sectorId",
-								"partySize",
-								"duration",
-								"date",
-								"windowStart",
-								"windowEnd"
-							]
-						}
-					}
-				}
-			}
-		},
-		"schemas": {
-			"WokiDiscover": {
-				"type": "object",
-				"properties": {
-					"slotsMinutes": { "type": "integer" },
-					"durationMinutes": { "type": "integer" },
-					"candidates": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"kind": { "type": "string", "enum": ["single", "combo"] },
-								"tableIds": {
-									"type": "array",
-									"items": { "type": "string" }
-								},
-								"sectorId": { "type": "string" },
-								"maxSize": { "type": "integer" },
-								"minSize": { "type": "integer" },
-								"startDate": { "type": "string", "format": "date-time" },
-								"endDate": { "type": "string", "format": "date-time" }
-							}
-						}
-					}
-				}
-			},
-			"WokiBookings": {
-				"type": "object",
-				"properties": {
-					"id": { "type": "string" },
-					"restaurantId": { "type": "string" },
-					"sectorId": { "type": "string" },
-					"tableIds": {
-						"type": "array",
-						"items": { "type": "string" }
-					},
-					"partySize": { "type": "integer" },
-					"start": { "type": "string", "format": "date-time" },
-					"end": { "type": "string", "format": "date-time" },
-					"status": { "type": "string", "enum": ["CONFIRMED", "CANCELLED"] },
-					"createdAt": { "type": "string", "format": "date-time" },
-					"updatedAt": { "type": "string", "format": "date-time" }
-				}
-			},
-			"WokiDay": {
-				"type": "object",
-				"properties": {
-					"date": { "type": "string", "format": "date" },
-					"items": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"id": { "type": "string" },
-								"tableIds": {
-									"type": "array",
-									"items": { "type": "string" }
-								},
-								"partySize": { "type": "integer" },
-								"status": { "type": "string", "enum": ["CONFIRMED", "CANCELLED"] },
-								"start": { "type": "string", "format": "date-time" },
-								"end": { "type": "string", "format": "date-time" }
-							}
-						}
-					}
-				}
-			}
-		},
-		"responses": {
-			"WokiDiscover": {
-				"description": "Woki Discover Response",
-				"content": {
-					"application/json": {
-						"schema": {
-							"$ref": "#/components/schemas/WokiDiscover"
-						}
-					}
-				}
-			},
-			"WokiBookings": {
-				"description": "Woki Bookings Response",
-				"content": {
-					"application/json": {
-						"schema": {			
-							"$ref": "#/components/schemas/WokiBookings"	
-						}
-					}
-				}
-			},
-			"BadRequest": {
-				"description": "Bad Request",
-				"content": {
-					"application/json": {
-						"schema": {
-							"type": "object",
-							"properties": {
-								"error": { "type": "string", "example": "bad_request" },
-        				"detail": { "type": "string" }
-							}
-						}
-					}
-				}
-			},
-			"OutsideServiceWindow": {
-				"description": "Unprocessable Entity",
-				"content": {
-					"application/json": {
-						"schema": {
-							"type": "object",
-							"properties": {
-								"error": { "type": "string", "example": "outside_service_window" },
-        				"detail": { "type": "string" }
-							}
-						}
-					}
-				}
-			},
-			"NoCapacity": {
-				"description": "Conflict",
-				"content": {
-					"application/json": {
-						"schema": {
-							"type": "object",
-							"properties": {
-								"error": { "type": "string", "example": "no_capacity" },
-        				"detail": { "type": "string" }
-							}
-						}
-					}
-				}
-			},
-			"InternalServerError": {
-				"description": "Internal Server Error",
-				"content": {
-					"application/json": {
-						"schema": {
-							"type": "object",
-							"properties": {
-								"error": { "type": "string", "example": "internal_server_error" },
-								"detail": { "type": "string" }
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+    "parameters": {
+      "idempotencyKeyHeader": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "description": "Idempotency key to ensure request uniqueness",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "unique-key-12345"
+        }
+      },
+      "restaurantParam": {
+        "name": "restaurantId",
+        "in": "query",
+        "description": "ID of the restaurant",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "sectorParam": {
+        "name": "sectorId",
+        "in": "query",
+        "description": "ID of the sector",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "dateParam": {
+        "name": "date",
+        "in": "query",
+        "description": "Date in YYYY-MM-DD format",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+        }
+      },
+      "partySizeParam": {
+        "name": "partySize",
+        "in": "query",
+        "description": "Number of people in the party",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "durationParam": {
+        "name": "duration",
+        "in": "query",
+        "description": "Duration of the reservation in minutes",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 180
+        }
+      },
+      "windowStartParam": {
+        "name": "windowStart",
+        "in": "query",
+        "description": "Start time of the window in HH:MM format",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+        }
+      },
+      "windowEndParam": {
+        "name": "windowEnd",
+        "in": "query",
+        "description": "End time of the window in HH:MM format",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+        }
+      },
+      "limitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Maximum number of results to return",
+        "required": false,
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    "requestBodies": {
+      "WokiBookings": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "restaurantId": {
+                  "type": "string"
+                },
+                "sectorId": {
+                  "type": "string"
+                },
+                "partySize": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "duration": {
+                  "type": "integer",
+                  "minimum": 15,
+                  "maximum": 180
+                },
+                "date": {
+                  "type": "string",
+                  "example": "2025-10-22"
+                },
+                "windowStart": {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                  "example": "18:00"
+                },
+                "windowEnd": {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                  "example": "20:00"
+                }
+              },
+              "required": [
+                "restaurantId",
+                "sectorId",
+                "partySize",
+                "duration",
+                "date",
+                "windowStart",
+                "windowEnd"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "WokiDiscover": {
+        "type": "object",
+        "properties": {
+          "slotsMinutes": {
+            "type": "integer"
+          },
+          "durationMinutes": {
+            "type": "integer"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "single",
+                    "combo"
+                  ]
+                },
+                "tableIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "sectorId": {
+                  "type": "string"
+                },
+                "maxSize": {
+                  "type": "integer"
+                },
+                "minSize": {
+                  "type": "integer"
+                },
+                "startDate": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "endDate": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      },
+      "WokiBookings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "restaurantId": {
+            "type": "string"
+          },
+          "sectorId": {
+            "type": "string"
+          },
+          "tableIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "partySize": {
+            "type": "integer"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED",
+              "CANCELLED"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WokiDay": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "tableIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "partySize": {
+                  "type": "integer"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "CONFIRMED",
+                    "CANCELLED"
+                  ]
+                },
+                "start": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "end": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "WokiDiscover": {
+        "description": "Woki Discover Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WokiDiscover"
+            }
+          }
+        }
+      },
+      "WokiBookings": {
+        "description": "Woki Bookings Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WokiBookings"
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Bad Request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "bad_request"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "OutsideServiceWindow": {
+        "description": "Unprocessable Entity",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "outside_service_window"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NoCapacity": {
+        "description": "Conflict",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "no_capacity"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal Server Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "internal_server_error"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
