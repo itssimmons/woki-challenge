@@ -18,6 +18,7 @@ First of all, thank you for taking the time to review my challenge proposal. In 
 	- [Wokibrain](#wokibrain)
 	- [Benchmarking](#benchmarking)
 	- [Metrics](#metrics)
+	- [Multi-Container Cloud Run Deploy](#multi-container-cloud-run-deploy)
 	- [CI/CD](#cicd)
 - [Author](#author)
 
@@ -66,9 +67,9 @@ Once the project is up and running, you can access the API documentation at:
 ### Using Docker (recommended)
 
 ```bash
-docker compose up --build
+docker compose -f ci/docker-compose.yml up --build
 # to stop the containers
-docker compose down
+docker compose -f ci/docker-compose.yml down
 ```
 
 ### Running Locally
@@ -193,6 +194,12 @@ I created benchmarking scripts to measure the performance of the gap-finding alg
 ### Metrics
 
 To monitor the performance and health of the application, I integrated basic metrics collection using Nodejs Prometheus. This setup allows me to track key performance indicators, such as response times, error rates, and resource utilization, providing valuable insights into the application's behavior.
+
+### Multi-Container Cloud Run Deploy
+
+I configured the application to run as a multi-container service on Google Cloud Run. One Container is deployed as based-service, exposing the port `8080` for the Fastify API, while the second container runs a Redis instance from the Docker Hub Registry to handle caching. This setup ensures that both the application and its caching layer are co-located, improving performance and reducing latency.
+
+I could use a VPC and bunch of Google Cloud services to have a more robust and production-ready architecture, but for the sake of this challenge, I kept it simple and straightforward, also saving costs not even reaching the free tier limits.
 
 ### CI/CD
 

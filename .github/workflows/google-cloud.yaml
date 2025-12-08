@@ -33,7 +33,7 @@ jobs:
           docker compose -f ci/docker-compose.yml build
           docker compose -f ci/docker-compose.yml push
 
-  deploy:
+  retag:
     name: Publish to Cloud Run
     needs: publish
     runs-on: ubuntu-latest
@@ -49,27 +49,44 @@ jobs:
         uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
       - name: Configure gcloud for Artifact Registry
         run: |
           gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev
-      
-      - name: Pull the image from Docker Hub and retag it for Google
+      - name: Pull a retag to Google Artifact Registry
         run: |
           docker pull ${{ vars.DOCKERHUB_USERNAME }}/woki-challenge:${TAG_NAME}
           docker tag ${{ vars.DOCKERHUB_USERNAME }}/woki-challenge:${TAG_NAME} \
             ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ vars.GCP_REPOSITORY }}/woki-challenge:${TAG_NAME}
           docker push ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ vars.GCP_REPOSITORY }}/woki-challenge:${TAG_NAME}
+          
+  deploy:
+    name: Deploy to Cloud Run
+    needs: retag
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        
+      - name: Export variables
+        run: |
+          echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ vars.GCP_REGION }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT=${{ vars.GCP_PROJECT }}" >> $GITHUB_ENV
+          echo "GCP_REPOSITORY=${{ vars.GCP_REPOSITORY }}" >> $GITHUB_ENV
+          echo "GCP_SQLITE_BUCKET=${{ vars.GCP_SQLITE_BUCKET }}" >> $GITHUB_ENV
+          
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy woki-challenge \
-            --image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT }}/${{ vars.GCP_REPOSITORY }}/woki-challenge:${TAG_NAME} \
-            --platform managed \
-            --set-env-vars=NODE_ENV=production \
-            --region=${{ vars.GCP_REGION }} \
-            --allow-unauthenticated
-    
+          envsubst < ./ci/service.template.yaml > service.yaml
+          gcloud run services replace service.yaml \
+            --platform=managed \
+            --region=${{ vars.GCP_REGION }}
+
   release:
     name: Create GitHub Release
     needs: publish

@@ -1,0 +1,64 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: woki-challenge
+spec:
+  template:
+    metadata:
+      labels:
+        cloud.googleapis.com/location: ${GCP_REGION}
+        run.googleapis.com/startupProbeType: Default
+      annotations:
+        autoscaling.knative.dev/maxScale: '20'
+        run.googleapis.com/client-name: cloud-console
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: woki-ci@woki-challenge.iam.gserviceaccount.com
+      containers:
+        - name: woki-challenge
+          image: ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPOSITORY}/woki-challenge:${TAG_NAME}
+          ports:
+            - name: http1
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DB_MEMORY_PATH
+              value: /data/database.db
+            - name: REDIS_HOST
+              value: '127.0.0.1'
+            - name: REDIS_PORT
+              value: '6379'
+          volumeMounts:
+            - name: sqlite-data
+              mountPath: /data
+        - name: redis-sidecar
+          image: "redis:alpine"
+          args: ["redis-server", "--port", "6379"]
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data/redis
+      volumes:
+        - name: sqlite-data
+          csi:
+            driver: gcsfuse.run.googleapis.com
+            volumeAttributes:  
+              bucketName: ${GCP_SQLITE_BUCKET}
+        - name: redis-data
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512M
+  traffic:
+  - percent: 100
+    latestRevision: true
