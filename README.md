@@ -163,6 +163,8 @@ For the purpose of this challenge, I chose SQLite as the database (more explicit
 
 To avoid a race condition, the first option that came to my mind was to use Redis as a caching layer. This decision was made to ensure data consistency and improve performance when handling concurrent requests, due to the speed of in-memory & single-threaded event loop operations.
 
+<img height="1422" alt="Database Schema" src="https://github.com/user-attachments/assets/7e2dd4a0-d629-4ccc-a40b-03b532135ad2" />
+
 ### Testing
 
 As you can see, I not only wrote unit tests for the endpoints or the criteria of the challenge (section 7), but also for the core logic and utility functions. This comprehensive testing approach helps ensure the reliability and correctness of the application. In fact, this approach allowed me to catch edge cases and potential bugs even before thinking about endpoints.
@@ -201,6 +203,8 @@ I configured the application to run as a multi-container service on Google Cloud
 
 I could use a VPC and bunch of Google Cloud services to have a more robust and production-ready architecture, but for the sake of this challenge, I kept it simple and straightforward, also saving costs not even reaching the free tier limits.
 
+<img height="1422" alt="System Design" src="https://github.com/user-attachments/assets/b6771c4a-9d9b-4396-94d5-d2426cc76350" />
+
 ### CI/CD
 
 I set up a CI/CD pipeline using GitHub Actions to automate the testing and deployment process. The deployments run every time a tag is created, following the semantic versioning convention. The project is built by a Docker image and published to a registry that Google Cloud Run can access, enabling seamless and efficient deployment of the application. If any test fails, the deployment process is halted to ensure that only stable and reliable code is deployed.
@@ -210,3 +214,4 @@ I set up a CI/CD pipeline using GitHub Actions to automate the testing and deplo
 This repository is the property of [@itssimmons](https://github.com/itssimmons) and is intended to showcase the approach I took to this take-home challenge.
 
 <sup><em>last update sat 7 dec 2025 13:14</em><sup>
+
